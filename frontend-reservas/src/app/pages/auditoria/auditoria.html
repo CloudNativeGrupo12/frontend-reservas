@@ -1,0 +1,40 @@
+<h1>Auditoría</h1>
+
+@if (loading()) {
+  <app-loading />
+}
+
+@if (error()) {
+  <p class="alert error">{{ error() }}</p>
+}
+
+<section class="panel">
+  @if (registros().length === 0) {
+    <p class="empty">No hay registros de auditoría.</p>
+  } @else {
+    <table>
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Evento</th>
+          <th>Tipo</th>
+          <th>Descripción</th>
+          <th>Usuario</th>
+          <th>Timestamp</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (registro of registros(); track registro.auditoriaId ?? registro.id ?? $index) {
+          <tr>
+            <td>{{ registro.auditoriaId ?? registro.id ?? '-' }}</td>
+            <td>{{ registro.eventoId ?? '-' }}</td>
+            <td>{{ registro.tipo ?? '-' }}</td>
+            <td>{{ registro.descripcion ?? '-' }}</td>
+            <td>{{ registro.usuario ?? '-' }}</td>
+            <td>{{ registro.timestamp ?? '-' }}</td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  }
+</section>

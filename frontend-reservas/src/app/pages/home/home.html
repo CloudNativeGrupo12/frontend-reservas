@@ -1,0 +1,37 @@
+<section class="hero">
+  <h1>Sistema de Reservas</h1>
+  <p>
+    Panel del restaurante: gestión de reservas, disponibilidad de mesas, notificaciones, auditoría y
+    colas de RabbitMQ.
+  </p>
+
+  @if (loggedIn && accountName()) {
+    <p class="welcome">
+      Bienvenido, <strong>{{ accountName() }}</strong
+      >.
+    </p>
+  }
+</section>
+
+<div class="cards">
+  <a class="card" routerLink="/reservas">
+    <h2>Reservas</h2>
+    <p>Crear reservas y ver el historial del microservicio ms-reservas (:8080).</p>
+  </a>
+  <a class="card" routerLink="/disponibilidad">
+    <h2>Disponibilidad</h2>
+    <p>Mesas del restaurante y ocupación actual (ms-disponibilidad, :8081).</p>
+  </a>
+  <a class="card" routerLink="/notificaciones">
+    <h2>Notificaciones</h2>
+    <p>Correos procesados por ms-notificaciones (:8082).</p>
+  </a>
+  <a class="card" routerLink="/auditoria">
+    <h2>Auditoría</h2>
+    <p>Registros de auditoría del sistema (ms-auditoria, :8083).</p>
+  </a>
+  <a class="card" routerLink="/admin">
+    <h2>Admin RabbitMQ</h2>
+    <p>Gestión de colas, exchanges y bindings (ms-admin-rabbitmq, :8084).</p>
+  </a>
+</div>

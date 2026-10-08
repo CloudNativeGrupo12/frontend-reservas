@@ -1,0 +1,93 @@
+<h1>Admin RabbitMQ</h1>
+
+@if (error()) {
+  <p class="alert error">{{ error() }}</p>
+}
+@if (message()) {
+  <p class="alert success">{{ message() }}</p>
+}
+
+<section class="panel half">
+  <h2>Colas</h2>
+  <form [formGroup]="queueForm" (ngSubmit)="crearCola()" class="vertical">
+    <label>
+      Nombre
+      <input formControlName="name" placeholder="cola.reservas.nuevas" />
+    </label>
+    <label class="checkbox">
+      <input formControlName="durable" type="checkbox" />
+      Durable
+    </label>
+    <button class="btn btn-primary" type="submit" [disabled]="queueForm.invalid">Crear cola</button>
+  </form>
+  <button class="btn btn-sm btn-danger" (click)="eliminarCola(queueForm.controls.name.value ?? '')">
+    Eliminar cola
+  </button>
+</section>
+
+<section class="panel half">
+  <h2>Exchanges</h2>
+  <form [formGroup]="exchangeForm" (ngSubmit)="crearExchange()" class="vertical">
+    <label>
+      Nombre
+      <input formControlName="name" placeholder="exchange.reservas" />
+    </label>
+    <label>
+      Tipo
+      <select formControlName="type">
+        <option value="direct">direct</option>
+        <option value="fanout">fanout</option>
+        <option value="topic">topic</option>
+      </select>
+    </label>
+    <label class="checkbox">
+      <input formControlName="durable" type="checkbox" />
+      Durable
+    </label>
+    <button class="btn btn-primary" type="submit" [disabled]="exchangeForm.invalid">
+      Crear exchange
+    </button>
+  </form>
+  <button
+    class="btn btn-sm btn-danger"
+    (click)="eliminarExchange(exchangeForm.controls.name.value ?? '')"
+  >
+    Eliminar exchange
+  </button>
+</section>
+
+<section class="panel">
+  <h2>Bindings</h2>
+  <form [formGroup]="bindingForm" class="vertical grid">
+    <label>
+      Cola
+      <input formControlName="queue" placeholder="cola.reservas.nuevas" />
+    </label>
+    <label>
+      Exchange
+      <input formControlName="exchange" placeholder="exchange.reservas" />
+    </label>
+    <label>
+      Routing key
+      <input formControlName="routingKey" placeholder="reserva.creada" />
+    </label>
+    <div class="actions">
+      <button
+        class="btn btn-primary"
+        type="button"
+        (click)="crearBinding()"
+        [disabled]="bindingForm.invalid"
+      >
+        Crear binding
+      </button>
+      <button
+        class="btn btn-danger"
+        type="button"
+        (click)="eliminarBinding()"
+        [disabled]="bindingForm.invalid"
+      >
+        Eliminar binding
+      </button>
+    </div>
+  </form>
+</section>

@@ -1,0 +1,63 @@
+<h1>Disponibilidad</h1>
+
+@if (loading()) {
+  <app-loading />
+}
+
+@if (error()) {
+  <p class="alert error">{{ error() }}</p>
+}
+
+<section class="panel">
+  <h2>Mesas del restaurante</h2>
+  @if (mesas().length === 0) {
+    <p class="empty">No hay mesas registradas.</p>
+  } @else {
+    <table>
+      <thead>
+        <tr>
+          <th>Mesa</th>
+          <th>Capacidad</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (mesa of mesas(); track mesa.MESA_ID) {
+          <tr>
+            <td>{{ mesa.MESA_ID }}</td>
+            <td>{{ mesa.CAPACIDAD }} personas</td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  }
+</section>
+
+<section class="panel">
+  <h2>Ocupación actual</h2>
+  @if (asignaciones().length === 0) {
+    <p class="empty">No hay mesas asignadas.</p>
+  } @else {
+    <table>
+      <thead>
+        <tr>
+          <th>Asignación</th>
+          <th>Reserva</th>
+          <th>Mesa</th>
+          <th>Fecha</th>
+          <th>Horario</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (asignacion of asignaciones(); track asignacion.asignacionId ?? $index) {
+          <tr>
+            <td>{{ asignacion.asignacionId ?? '-' }}</td>
+            <td>{{ asignacion.reservaId ?? '-' }}</td>
+            <td>{{ asignacion.mesaId ?? '-' }}</td>
+            <td>{{ asignacion.fechaReserva ?? '-' }}</td>
+            <td>{{ asignacion.horaInicio ?? '-' }} - {{ asignacion.horaFin ?? '-' }}</td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  }
+</section>

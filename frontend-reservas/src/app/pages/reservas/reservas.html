@@ -1,0 +1,91 @@
+<h1>Reservas</h1>
+
+<section class="panel">
+  <h2>Nueva reserva</h2>
+  <form [formGroup]="form" (ngSubmit)="crear()" class="grid">
+    <label>
+      Cliente ID
+      <input formControlName="clienteId" placeholder="cli-010" />
+    </label>
+    <label>
+      Email del cliente
+      <input formControlName="emailCliente" type="email" placeholder="cliente@example.com" />
+    </label>
+    <label>
+      Fecha
+      <input formControlName="fechaReserva" type="date" />
+    </label>
+    <label>
+      Hora inicio
+      <input formControlName="horaInicio" type="time" />
+    </label>
+    <label>
+      Hora fin
+      <input formControlName="horaFin" type="time" />
+    </label>
+    <label>
+      Personas (1-8)
+      <input formControlName="cantidadPersonas" type="number" min="1" max="8" />
+    </label>
+
+    @if (error()) {
+      <p class="alert error">{{ error() }}</p>
+    }
+    @if (message()) {
+      <p class="alert success">{{ message() }}</p>
+    }
+
+    <div class="actions">
+      <button class="btn btn-primary" type="submit" [disabled]="form.invalid">Crear reserva</button>
+    </div>
+  </form>
+</section>
+
+<section class="panel">
+  <h2>Historial de reservas</h2>
+
+  @if (loading()) {
+    <app-loading />
+  } @else if (reservas().length === 0) {
+    <p class="empty">No hay reservas registradas.</p>
+  } @else {
+    <table>
+      <thead>
+        <tr>
+          <th>Reserva</th>
+          <th>Cliente</th>
+          <th>Mesa</th>
+          <th>Fecha</th>
+          <th>Inicio</th>
+          <th>Fin</th>
+          <th>Personas</th>
+          <th>Estado</th>
+          <th>Publicación</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (reserva of reservas(); track reserva.reservaId) {
+          <tr>
+            <td>{{ reserva.reservaId }}</td>
+            <td>
+              {{ reserva.clienteId }}<br /><small>{{ reserva.emailCliente }}</small>
+            </td>
+            <td>{{ reserva.mesaId }}</td>
+            <td>{{ reserva.fechaReserva }}</td>
+            <td>{{ reserva.horaInicio }}</td>
+            <td>{{ reserva.horaFin }}</td>
+            <td>{{ reserva.cantidadPersonas }}</td>
+            <td>{{ reserva.estado }}</td>
+            <td>{{ reserva.publicacion }}</td>
+            <td>
+              <button class="btn btn-sm" (click)="publicar(reserva.reservaId)">
+                Reintentar publicación
+              </button>
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  }
+</section>

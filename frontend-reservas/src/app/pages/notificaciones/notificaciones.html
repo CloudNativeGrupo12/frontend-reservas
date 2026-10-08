@@ -1,0 +1,43 @@
+<h1>Notificaciones</h1>
+
+@if (loading()) {
+  <app-loading />
+}
+
+@if (error()) {
+  <p class="alert error">{{ error() }}</p>
+}
+
+<section class="panel">
+  @if (notificaciones().length === 0) {
+    <p class="empty">No hay notificaciones procesadas.</p>
+  } @else {
+    <table>
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Reserva</th>
+          <th>Email</th>
+          <th>Asunto</th>
+          <th>Estado</th>
+          <th>Timestamp</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (
+          notificacion of notificaciones();
+          track notificacion.notificacionId ?? notificacion.id ?? $index
+        ) {
+          <tr>
+            <td>{{ notificacion.notificacionId ?? notificacion.id ?? '-' }}</td>
+            <td>{{ notificacion.reservaId ?? '-' }}</td>
+            <td>{{ notificacion.emailCliente ?? '-' }}</td>
+            <td>{{ notificacion.asunto ?? '-' }}</td>
+            <td>{{ notificacion.estado ?? '-' }}</td>
+            <td>{{ notificacion.timestamp ?? '-' }}</td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  }
+</section>
