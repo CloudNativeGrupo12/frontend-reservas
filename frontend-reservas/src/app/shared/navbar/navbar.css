@@ -16,8 +16,10 @@
 
 .links {
   display: flex;
+  flex-wrap: wrap;
   gap: 1rem;
   flex: 1;
+  min-width: 0;
 }
 
 .links a {
@@ -37,4 +39,21 @@
 
 .auth .btn {
   margin-left: 0.5rem;
+}
+
+@media (max-width: 1050px) {
+  .navbar {
+    flex-wrap: wrap;
+    gap: 0.75rem;
+  }
+
+  .auth {
+    margin-left: auto;
+  }
+
+  .links {
+    order: 3;
+    flex-basis: 100%;
+    gap: 0.5rem 1rem;
+  }
 }

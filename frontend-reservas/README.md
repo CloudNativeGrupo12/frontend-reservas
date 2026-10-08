@@ -2,6 +2,8 @@
 
 Frontend del sistema de reservas para EP3 DSY1107. Angular 22 y MSAL permiten iniciar sesión con Microsoft Entra ID y usar las cinco APIs protegidas del backend. Las vistas muestran reservas, mesas/asignaciones, notificaciones, auditoría y administración de RabbitMQ.
 
+**[Abrir la aplicación pública en AWS](https://6yyp6d2s6j.execute-api.us-east-1.amazonaws.com)**. Iniciar sesión con una cuenta del tenant Microsoft institucional configurado. El 8 de octubre de 2026 se comprobó una reserva desde esta URL y su asignación, notificación y auditoría en las cuatro bases de RDS. Ver [despliegue y operación](https://github.com/CloudNativeGrupo12/actividad-evaluada-rabbitmq/blob/feature/ep3-rubrica/docs/DESPLIEGUE_AWS.md).
+
 ## Ejecutar y verificar
 
 ```powershell
@@ -9,14 +11,14 @@ npm ci
 npm start
 ```
 
-Abrir `http://localhost:4200` e iniciar sesión con Microsoft. El backend debe estar activo en los puertos 8080 a 8084. Los registros Azure están configurados. Tanto desarrollo como el build optimizado usan las URLs reales de la demostración: Angular y APIs locales, con las cuatro bases en RDS cloud.
+En desarrollo, abrir `http://localhost:4200` e iniciar sesión con Microsoft. El backend debe estar activo en los puertos 8080 a 8084. `environment.ts` mantiene la configuración local; `environment.prod.ts` usa la URL HTTPS pública y los prefijos `/backend/*` del despliegue AWS. Ambos entornos usan los registros Azure configurados.
 
 ```powershell
 npm run build
 npm test -- --watch=false
 ```
 
-Para probar la configuración optimizada en `http://localhost:4200`, detener primero el servidor de desarrollo y ejecutar `npm start -- --configuration production`. Un despliegue público requiere configurar sus dominios reales, redirects de Entra ID y CORS; no hay un dominio público desplegado en esta entrega.
+El build optimizado se publica mediante `scripts/desplegar-publico.py` del backend. Su redirect Microsoft y sus llamadas API pertenecen al origen público de AWS; para trabajar en localhost usar `npm start` con la configuración de desarrollo.
 
 El 8 de octubre de 2026 se verificaron compilación y seis pruebas, login real, consumo de las cinco APIs con JWT, creación de reservas, notificación y auditoría del mismo evento, y creación/eliminación de colas, exchanges y bindings. Los adaptadores HTTP traducen los campos en mayúsculas de asignaciones y registros procesados al modelo de las vistas.
 

@@ -1,6 +1,6 @@
 # Configuración Azure y URLs
 
-Los registros API y SPA y sus identificadores quedaron configurados mediante Azure CLI el 8 de octubre de 2026. El backend incluye `scripts/configurar-azure.ps1` para reproducir la configuración, incluso al sustituir identificadores de otro tenant. Se verificó login real con Microsoft y acceso JWT desde Angular a las cinco APIs. Tanto desarrollo como el build optimizado apuntan a las APIs locales y al redirect `http://localhost:4200`; las bases de los microservicios están en RDS cloud. Las secciones de dominio público siguientes describen un despliegue futuro.
+Los registros API y SPA y sus identificadores quedaron configurados mediante Azure CLI el 8 de octubre de 2026. El backend incluye `scripts/configurar-azure.ps1` para reproducir la configuración, incluso al sustituir identificadores de otro tenant. Se verificó login real con Microsoft y acceso JWT a las cinco APIs en [la aplicación AWS](https://6yyp6d2s6j.execute-api.us-east-1.amazonaws.com). Desarrollo mantiene localhost; el build optimizado usa exclusivamente HTTPS y APIs AWS, con datos en RDS.
 
 ---
 
@@ -48,12 +48,12 @@ Debes crear **dos** registros de aplicación en el Azure Portal
 
 ### Build optimizado (src/environments/environment.prod.ts)
 
-La configuración actual usa los mismos identificadores Azure, URLs de APIs y redirect local que desarrollo. `npm run build` produce una aplicación con la configuración real de la evaluación. Para un futuro despliegue público, sustituir las URLs locales por los valores siguientes y registrar el nuevo origen en Entra ID y CORS:
+La configuración actual usa los mismos identificadores Azure que desarrollo. `redirectUri` y `postLogoutRedirectUri` son `https://6yyp6d2s6j.execute-api.us-east-1.amazonaws.com`; este origen ya está registrado en la SPA y en CORS. `npm run build` genera la aplicación pública. Para desplegar en otro origen, actualizar todos estos valores y registrar el redirect correspondiente:
 
 | Placeholder | Valor esperado |
 | :--- | :--- |
-| `<DOMINIO_PRODUCCION>` | Dominio servido por S3/CloudFront, ej: `app.midominio.com` |
-| `<API_GATEWAY_URL>` | URL del API Gateway de AWS, ej: `https://xxx.execute-api.us-east-1.amazonaws.com/prod` |
+| `<DOMINIO_PRODUCCION>` | Origen HTTPS que sirve Angular; actualmente el endpoint público HTTP API Gateway |
+| `<API_GATEWAY_URL>` | `https://6yyp6d2s6j.execute-api.us-east-1.amazonaws.com` (stage `$default`, sin `/prod`) |
 | `<AZURE_SPA_CLIENT_ID>` | Application ID de **ReservasApp-SPA** |
 | `<TENANT_ID>` | Tenant ID del directorio |
 | `<AZURE_API_CLIENT_ID>` | Application ID de **ReservasApp-API** |
@@ -77,7 +77,17 @@ La configuración actual usa los mismos identificadores Azure, URLs de APIs y re
 
 ### Producción — environment.prod.ts
 
-En el build optimizado actual, cada clave usa el puerto local del microservicio indicado en la tabla anterior. Si se despliega un API Gateway público, configurar todas las claves (`reservas`, `disponibilidad`, `notificaciones`, `auditoria`, `adminRabbitmq`) y `protectedResourceMap` con su URL real.
+El build optimizado usa el origen `https://6yyp6d2s6j.execute-api.us-east-1.amazonaws.com` con estos prefijos, tanto en `apiUrls` como en `protectedResourceMap`:
+
+| Clave | Prefijo |
+|---|---|
+| `reservas` | `/backend/reservas` |
+| `disponibilidad` | `/backend/disponibilidad` |
+| `notificaciones` | `/backend/notificaciones` |
+| `auditoria` | `/backend/auditoria` |
+| `adminRabbitmq` | `/backend/admin` |
+
+Nginx elimina el prefijo y transmite el bearer a cada API; Spring Boot valida el JWT. Frontend y APIs comparten el origen HTTPS.
 
 ---
 
@@ -104,7 +114,8 @@ En el build optimizado actual, cada clave usa el puerto local del microservicio 
 - [x] Configurar el Tenant ID y tokens v2.
 - [x] Configurar `environment.ts` y `environment.prod.ts` para la demostración.
 - [x] Registrar `http://localhost:4200` como redirect SPA.
+- [x] Registrar el origen HTTPS de AWS como redirect SPA, conservando localhost.
 - [x] Habilitar CORS y validación JWT (issuer/audience) en las cinco APIs.
 - [x] Verificar login real y consumo de las cinco APIs con JWT.
 
-Un futuro hosting público requiere registrar su dominio y configurar las URLs de ese despliegue. La pauta suministrada exige base de datos cloud y entrega por GitHub; no especifica un hosting público del frontend ni de los microservicios.
+El hosting público está activo en AWS. Antes de presentar, iniciar el laboratorio y comprobar EC2, RDS, salud de las APIs y login. Consultar `docs/DESPLIEGUE_AWS.md` del backend para reproducir y mantener la infraestructura.

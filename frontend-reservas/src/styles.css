@@ -30,6 +30,7 @@ h2 {
   border-radius: 8px;
   padding: 1.25rem;
   margin-bottom: 1.5rem;
+  overflow-x: auto;
 }
 
 input,
