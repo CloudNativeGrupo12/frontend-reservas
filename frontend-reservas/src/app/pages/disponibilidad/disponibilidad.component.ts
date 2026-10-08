@@ -3,6 +3,7 @@ import { DisponibilidadService } from '../../services/disponibilidad.service';
 import { Mesa } from '../../models/mesa.model';
 import { Asignacion } from '../../models/asignacion.model';
 import { Loading } from '../../shared/loading/loading';
+import { forkJoin, finalize } from 'rxjs';
 
 @Component({
   selector: 'app-disponibilidad',
@@ -25,13 +26,14 @@ export class DisponibilidadComponent implements OnInit {
   cargar(): void {
     this.loading.set(true);
     this.error.set('');
-    this.disponibilidadService.getMesas().subscribe({
-      next: (mesas) => this.mesas.set(mesas),
-      error: (err) => this.error.set(err.message),
-      complete: () => this.loading.set(false),
-    });
-    this.disponibilidadService.getAsignaciones().subscribe({
-      next: (asignaciones) => this.asignaciones.set(asignaciones),
+    forkJoin({
+      mesas: this.disponibilidadService.getMesas(),
+      asignaciones: this.disponibilidadService.getAsignaciones(),
+    }).pipe(finalize(() => this.loading.set(false))).subscribe({
+      next: ({ mesas, asignaciones }) => {
+        this.mesas.set(mesas);
+        this.asignaciones.set(asignaciones);
+      },
       error: (err) => this.error.set(err.message),
     });
   }

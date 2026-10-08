@@ -25,7 +25,7 @@ export class NotificacionesComponent implements OnInit {
     this.error.set('');
     this.notificacionesService.listar().subscribe({
       next: (notificaciones) => this.notificaciones.set(notificaciones),
-      error: (err) => this.error.set(err.message),
+      error: (err) => { this.error.set(err.message); this.loading.set(false); },
       complete: () => this.loading.set(false),
     });
   }

@@ -20,7 +20,7 @@
     </label>
     <button class="btn btn-primary" type="submit" [disabled]="queueForm.invalid">Crear cola</button>
   </form>
-  <button class="btn btn-sm btn-danger" (click)="eliminarCola(queueForm.controls.name.value ?? '')">
+  <button class="btn btn-sm btn-danger" [disabled]="queueForm.controls.name.invalid" (click)="eliminarCola(queueForm.controls.name.value ?? '')">
     Eliminar cola
   </button>
 </section>
@@ -50,6 +50,7 @@
   </form>
   <button
     class="btn btn-sm btn-danger"
+    [disabled]="exchangeForm.controls.name.invalid"
     (click)="eliminarExchange(exchangeForm.controls.name.value ?? '')"
   >
     Eliminar exchange

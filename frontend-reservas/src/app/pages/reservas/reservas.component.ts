@@ -36,7 +36,7 @@ export class ReservasComponent implements OnInit {
     this.loading.set(true);
     this.reservasService.listar().subscribe({
       next: (reservas) => this.reservas.set(reservas),
-      error: (err) => this.error.set(err.message),
+      error: (err) => { this.error.set(err.message); this.loading.set(false); },
       complete: () => this.loading.set(false),
     });
   }

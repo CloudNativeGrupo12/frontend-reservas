@@ -25,7 +25,7 @@ export class AuditoriaComponent implements OnInit {
     this.error.set('');
     this.auditoriaService.listar().subscribe({
       next: (registros) => this.registros.set(registros),
-      error: (err) => this.error.set(err.message),
+      error: (err) => { this.error.set(err.message); this.loading.set(false); },
       complete: () => this.loading.set(false),
     });
   }

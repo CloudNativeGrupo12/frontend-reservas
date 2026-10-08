@@ -15,22 +15,22 @@
     <table>
       <thead>
         <tr>
-          <th>ID</th>
           <th>Evento</th>
+          <th>Reserva</th>
           <th>Tipo</th>
-          <th>Descripción</th>
-          <th>Usuario</th>
+          <th>Resultado</th>
+          <th>Cliente</th>
           <th>Timestamp</th>
         </tr>
       </thead>
       <tbody>
-        @for (registro of registros(); track registro.auditoriaId ?? registro.id ?? $index) {
+        @for (registro of registros(); track registro.eventoId) {
           <tr>
-            <td>{{ registro.auditoriaId ?? registro.id ?? '-' }}</td>
             <td>{{ registro.eventoId ?? '-' }}</td>
+            <td>{{ registro.reservaId ?? '-' }}</td>
             <td>{{ registro.tipo ?? '-' }}</td>
-            <td>{{ registro.descripcion ?? '-' }}</td>
-            <td>{{ registro.usuario ?? '-' }}</td>
+            <td>{{ registro.resultado ?? '-' }}</td>
+            <td>{{ registro.clienteId ?? '-' }}</td>
             <td>{{ registro.timestamp ?? '-' }}</td>
           </tr>
         }

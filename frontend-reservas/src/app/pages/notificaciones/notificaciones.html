@@ -15,10 +15,9 @@
     <table>
       <thead>
         <tr>
-          <th>ID</th>
+          <th>Evento</th>
           <th>Reserva</th>
           <th>Email</th>
-          <th>Asunto</th>
           <th>Estado</th>
           <th>Timestamp</th>
         </tr>
@@ -32,7 +31,6 @@
             <td>{{ notificacion.notificacionId ?? notificacion.id ?? '-' }}</td>
             <td>{{ notificacion.reservaId ?? '-' }}</td>
             <td>{{ notificacion.emailCliente ?? '-' }}</td>
-            <td>{{ notificacion.asunto ?? '-' }}</td>
             <td>{{ notificacion.estado ?? '-' }}</td>
             <td>{{ notificacion.timestamp ?? '-' }}</td>
           </tr>

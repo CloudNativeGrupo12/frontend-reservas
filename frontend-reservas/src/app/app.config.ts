@@ -1,4 +1,5 @@
-import { ApplicationConfig, provideBrowserGlobalErrorListeners } from '@angular/core';
+import { ApplicationConfig, inject, provideAppInitializer, provideBrowserGlobalErrorListeners } from '@angular/core';
+import { firstValueFrom } from 'rxjs';
 import { provideRouter } from '@angular/router';
 import { provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
 import {
@@ -38,6 +39,13 @@ export const appConfig: ApplicationConfig = {
     MsalService,
     MsalGuard,
     MsalBroadcastService,
+    provideAppInitializer(() => {
+      const auth = inject(MsalService);
+      return firstValueFrom(auth.handleRedirectObservable()).then((result) => {
+        const account = result?.account ?? auth.instance.getAllAccounts()[0];
+        if (account) auth.instance.setActiveAccount(account);
+      });
+    }),
     ...authInterceptorProviders,
   ],
 };

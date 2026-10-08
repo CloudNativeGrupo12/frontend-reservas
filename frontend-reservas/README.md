@@ -1,5 +1,29 @@
 # FrontendReservas
 
+Frontend del sistema de reservas para EP3 DSY1107. Angular 22 y MSAL permiten iniciar sesión con Microsoft Entra ID y usar las cinco APIs protegidas del backend. Las vistas muestran reservas, mesas/asignaciones, notificaciones, auditoría y administración de RabbitMQ.
+
+## Ejecutar y verificar
+
+```powershell
+npm ci
+npm start
+```
+
+Abrir `http://localhost:4200` e iniciar sesión con Microsoft. El backend debe estar activo en los puertos 8080 a 8084. Los registros Azure están configurados. Tanto desarrollo como el build optimizado usan las URLs reales de la demostración: Angular y APIs locales, con las cuatro bases en RDS cloud.
+
+```powershell
+npm run build
+npm test -- --watch=false
+```
+
+Para probar la configuración optimizada en `http://localhost:4200`, detener primero el servidor de desarrollo y ejecutar `npm start -- --configuration production`. Un despliegue público requiere configurar sus dominios reales, redirects de Entra ID y CORS; no hay un dominio público desplegado en esta entrega.
+
+El 8 de octubre de 2026 se verificaron compilación y seis pruebas, login real, consumo de las cinco APIs con JWT, creación de reservas, notificación y auditoría del mismo evento, y creación/eliminación de colas, exchanges y bindings. Los adaptadores HTTP traducen los campos en mayúsculas de asignaciones y registros procesados al modelo de las vistas.
+
+La matriz de la pauta, la configuración CLI de Azure/AWS y las evidencias están en el repositorio backend, `docs/EP3.md` y `evidencias/ep3`. Revisar también [configuración Azure](docs/CONFIGURACION-AZURE.md).
+
+## Referencia Angular CLI
+
 This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 22.0.7.
 
 ## Development server

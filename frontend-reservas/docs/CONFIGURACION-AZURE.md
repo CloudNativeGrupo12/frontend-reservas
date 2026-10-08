@@ -1,7 +1,6 @@
-# Configuración pendiente — Azure y URLs
+# Configuración Azure y URLs
 
-Documento con todos los valores pendientes de rellenar antes de que la app funcione.
-Corresponden a los placeholders `<...>` que quedaron en `src/environments/`.
+Los registros API y SPA y sus identificadores quedaron configurados mediante Azure CLI el 8 de octubre de 2026. El backend incluye `scripts/configurar-azure.ps1` para reproducir la configuración, incluso al sustituir identificadores de otro tenant. Se verificó login real con Microsoft y acceso JWT desde Angular a las cinco APIs. Tanto desarrollo como el build optimizado apuntan a las APIs locales y al redirect `http://localhost:4200`; las bases de los microservicios están en RDS cloud. Las secciones de dominio público siguientes describen un despliegue futuro.
 
 ---
 
@@ -47,7 +46,9 @@ Debes crear **dos** registros de aplicación en el Azure Portal
 
 > La autoridad queda: `https://login.microsoftonline.com/<TENANT_ID>`.
 
-### Producción (src/environments/environment.prod.ts)
+### Build optimizado (src/environments/environment.prod.ts)
+
+La configuración actual usa los mismos identificadores Azure, URLs de APIs y redirect local que desarrollo. `npm run build` produce una aplicación con la configuración real de la evaluación. Para un futuro despliegue público, sustituir las URLs locales por los valores siguientes y registrar el nuevo origen en Entra ID y CORS:
 
 | Placeholder | Valor esperado |
 | :--- | :--- |
@@ -76,8 +77,7 @@ Debes crear **dos** registros de aplicación en el Azure Portal
 
 ### Producción — environment.prod.ts
 
-Todas las claves (`reservas`, `disponibilidad`, `notificaciones`, `auditoria`, `adminRabbitmq`)
-deben apuntar a `https://<API_GATEWAY_URL>`.
+En el build optimizado actual, cada clave usa el puerto local del microservicio indicado en la tabla anterior. Si se despliega un API Gateway público, configurar todas las claves (`reservas`, `disponibilidad`, `notificaciones`, `auditoria`, `adminRabbitmq`) y `protectedResourceMap` con su URL real.
 
 ---
 
@@ -89,21 +89,22 @@ deben apuntar a `https://<API_GATEWAY_URL>`.
    (Configúralo en `SecurityConfig.java` de cada servicio con `CorsConfigurationSource`.)
 2. **Validador de JWT en el backend.** Cada microservicio debe validar los tokens usando
    el **issuer** `https://login.microsoftonline.com/<TENANT_ID>/v2.0` y el **audience**
-   `api://<AZURE_API_CLIENT_ID>`.
+   `<AZURE_API_CLIENT_ID>` para los access tokens v2 de esta API. El scope mantiene el prefijo `api://`.
 3. **Redirect URI del SPA (Azure).** En ReservasApp-SPA → `Authentication`:
    - Platform: `Single-page application`
    - Redirect URIs: `http://localhost:4200` y `https://<DOMINIO_PRODUCCION>`.
-4. **Builder / constructor.** Se pueden dejar con los placeholders mientras no existan los
-   recursos; la app compila igualmente (`ng build`) porque son strings.
+4. **Builder / constructor.** Compilar no demuestra que una URL sea utilizable. La configuración entregada usa URLs reales de la demostración; después de cambiar un dominio, verificar login y llamadas autenticadas en ese entorno.
 
 ---
 
 ## 6. Checklist final
 
-- [ ] Crear registro **ReservasApp-SPA** y copiar su Application ID → `<AZURE_SPA_CLIENT_ID>`
-- [ ] Crear registro **ReservasApp-API**, definir scope `access_as_user` y copiar su Application ID → `<AZURE_API_CLIENT_ID>`
-- [ ] Copiar el Tenant ID → `<TENANT_ID>`
-- [ ] Rellenar `environment.ts` (separador desarrollo)
-- [ ] Rellenar `environment.prod.ts` (dominio + API Gateway)
-- [ ] Añadir redirect URIs en Azure (dev y prod)
-- [ ] Habilitar CORS y validación de JWT (issuer/audience) en los 5 microservicios
+- [x] Crear registro **ReservasApp-SPA** y configurar su Application ID.
+- [x] Crear registro **ReservasApp-API** y scope `access_as_user`.
+- [x] Configurar el Tenant ID y tokens v2.
+- [x] Configurar `environment.ts` y `environment.prod.ts` para la demostración.
+- [x] Registrar `http://localhost:4200` como redirect SPA.
+- [x] Habilitar CORS y validación JWT (issuer/audience) en las cinco APIs.
+- [x] Verificar login real y consumo de las cinco APIs con JWT.
+
+Un futuro hosting público requiere registrar su dominio y configurar las URLs de ese despliegue. La pauta suministrada exige base de datos cloud y entrega por GitHub; no especifica un hosting público del frontend ni de los microservicios.
