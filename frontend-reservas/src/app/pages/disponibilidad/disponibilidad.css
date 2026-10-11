@@ -1,3 +1,39 @@
-.empty {
-  color: #6b7280;
+.tables-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(155px, 1fr));
+  gap: 16px;
+}
+.table-option {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  text-align: center;
+  background: #f7f9fc;
+  border: 1px solid var(--line);
+  border-radius: 9px;
+  padding: 25px 12px;
+  cursor: pointer;
+  color: var(--ink);
+}
+.table-option app-icon {
+  color: var(--blue);
+  margin-bottom: 5px;
+}
+.table-option strong {
+  font-size: 16px;
+}
+.table-option span {
+  font-size: 13px;
+  color: var(--muted);
+}
+.table-option small {
+  font-size: 11px;
+}
+.table-option:hover {
+  background: var(--blue-soft);
+}
+.table-option.selected {
+  border-color: var(--blue);
+  background: var(--blue-soft);
 }

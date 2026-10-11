@@ -1,3 +1,9 @@
-.empty {
-  color: #6b7280;
+:host {
+  display: block;
+}
+.toolbar .count {
+  padding-bottom: 10px;
+}
+.reference {
+  white-space: nowrap;
 }

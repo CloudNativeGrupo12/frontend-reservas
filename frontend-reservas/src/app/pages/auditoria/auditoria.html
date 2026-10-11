@@ -1,40 +1,72 @@
-<h1>Auditoría</h1>
-
-@if (loading()) {
-  <app-loading />
-}
-
-@if (error()) {
-  <p class="alert error">{{ error() }}</p>
-}
-
+<header class="page-head">
+  <div>
+    <h1>Actividad del sistema</h1>
+    <p>Sigue el registro de las reservas procesadas.</p>
+  </div>
+  <button class="btn btn-outline" (click)="cargar()" [disabled]="loading()">
+    <app-icon name="refresh" />Actualizar
+  </button>
+</header>
 <section class="panel">
-  @if (registros().length === 0) {
-    <p class="empty">No hay registros de auditoría.</p>
+  <div class="toolbar">
+    <label class="search"
+      >Buscar<input
+        type="search"
+        placeholder="Buscar por cliente o referencia"
+        [value]="search()"
+        (input)="search.set($any($event.target).value)" /></label
+    ><span class="count">{{ filtered().length }} registros</span>
+  </div>
+  @if (loading()) {
+    <app-loading message="Consultando los registros…" />
+  } @else if (error()) {
+    <div class="alert error" role="alert">
+      <p>{{ error() }}</p>
+      <button class="btn btn-outline" (click)="cargar()">Volver a intentar</button>
+    </div>
+  } @else if (!registros().length) {
+    <div class="empty-state">
+      <span class="empty-mark"><app-icon name="activity" /></span>
+      <h3>Todavía no hay actividad registrada</h3>
+      <p>Las operaciones procesadas aparecerán aquí con su fecha y referencia.</p>
+    </div>
+  } @else if (!filtered().length) {
+    <div class="empty-state">
+      <h3>No encontramos coincidencias</h3>
+      <p>Prueba otra referencia o cambia los términos de búsqueda.</p>
+      <button class="btn btn-outline" (click)="search.set('')">Limpiar búsqueda</button>
+    </div>
   } @else {
-    <table>
-      <thead>
-        <tr>
-          <th>ID</th>
-          <th>Evento</th>
-          <th>Tipo</th>
-          <th>Descripción</th>
-          <th>Usuario</th>
-          <th>Timestamp</th>
-        </tr>
-      </thead>
-      <tbody>
-        @for (registro of registros(); track registro.auditoriaId ?? registro.id ?? $index) {
+    <div class="table-wrap">
+      <table>
+        <thead>
           <tr>
-            <td>{{ registro.auditoriaId ?? registro.id ?? '-' }}</td>
-            <td>{{ registro.eventoId ?? '-' }}</td>
-            <td>{{ registro.tipo ?? '-' }}</td>
-            <td>{{ registro.descripcion ?? '-' }}</td>
-            <td>{{ registro.usuario ?? '-' }}</td>
-            <td>{{ registro.timestamp ?? '-' }}</td>
+            <th scope="col">Operación</th>
+            <th scope="col">Cliente</th>
+            <th scope="col">Reserva</th>
+            <th scope="col">Fecha y hora</th>
+            <th scope="col">Referencia del evento</th>
           </tr>
-        }
-      </tbody>
-    </table>
+        </thead>
+        <tbody>
+          @for (r of filtered(); track r.auditoriaId) {
+            <tr>
+              <td>
+                <strong>{{ r.tipo === 'ReservaConfirmada' ? 'Reserva confirmada' : r.tipo }}</strong
+                ><small>{{
+                  r.descripcion === 'RESERVA_CONFIRMADA_REGISTRADA'
+                    ? 'Operación registrada'
+                    : r.descripcion
+                }}</small>
+              </td>
+              <td>{{ r.usuario || 'No disponible' }}</td>
+              <td class="reference" [title]="r.reservaId ?? ''">{{ r.reservaId?.slice(0, 8) }}</td>
+              <td>{{ r.timestamp | date: 'dd/MM/yyyy HH:mm' }}</td>
+              <td class="reference" [title]="r.eventoId ?? ''">{{ r.eventoId?.slice(0, 8) }}</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
   }
 </section>

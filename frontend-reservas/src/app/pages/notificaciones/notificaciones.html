@@ -1,43 +1,70 @@
-<h1>Notificaciones</h1>
-
-@if (loading()) {
-  <app-loading />
-}
-
-@if (error()) {
-  <p class="alert error">{{ error() }}</p>
-}
-
+<header class="page-head">
+  <div>
+    <h1>Notificaciones</h1>
+    <p>Consulta las confirmaciones enviadas a tus clientes.</p>
+  </div>
+  <button class="btn btn-outline" (click)="cargar()" [disabled]="loading()">
+    <app-icon name="refresh" />Actualizar
+  </button>
+</header>
 <section class="panel">
-  @if (notificaciones().length === 0) {
-    <p class="empty">No hay notificaciones procesadas.</p>
+  <div class="toolbar">
+    <label class="search"
+      >Buscar<input
+        type="search"
+        placeholder="Buscar por cliente o referencia"
+        [value]="search()"
+        (input)="search.set($any($event.target).value)" /></label
+    ><span class="count">{{ filtered().length }} registros</span>
+  </div>
+  @if (loading()) {
+    <app-loading message="Consultando los registros…" />
+  } @else if (error()) {
+    <div class="alert error" role="alert">
+      <p>{{ error() }}</p>
+      <button class="btn btn-outline" (click)="cargar()">Volver a intentar</button>
+    </div>
+  } @else if (!notificaciones().length) {
+    <div class="empty-state">
+      <span class="empty-mark"><app-icon name="mail" /></span>
+      <h3>Todavía no hay confirmaciones enviadas</h3>
+      <p>Aquí aparecerán los correos procesados después de confirmar una reserva.</p>
+    </div>
+  } @else if (!filtered().length) {
+    <div class="empty-state">
+      <h3>No encontramos coincidencias</h3>
+      <p>Prueba otra referencia o cambia los términos de búsqueda.</p>
+      <button class="btn btn-outline" (click)="search.set('')">Limpiar búsqueda</button>
+    </div>
   } @else {
-    <table>
-      <thead>
-        <tr>
-          <th>ID</th>
-          <th>Reserva</th>
-          <th>Email</th>
-          <th>Asunto</th>
-          <th>Estado</th>
-          <th>Timestamp</th>
-        </tr>
-      </thead>
-      <tbody>
-        @for (
-          notificacion of notificaciones();
-          track notificacion.notificacionId ?? notificacion.id ?? $index
-        ) {
+    <div class="table-wrap">
+      <table>
+        <thead>
           <tr>
-            <td>{{ notificacion.notificacionId ?? notificacion.id ?? '-' }}</td>
-            <td>{{ notificacion.reservaId ?? '-' }}</td>
-            <td>{{ notificacion.emailCliente ?? '-' }}</td>
-            <td>{{ notificacion.asunto ?? '-' }}</td>
-            <td>{{ notificacion.estado ?? '-' }}</td>
-            <td>{{ notificacion.timestamp ?? '-' }}</td>
+            <th scope="col">Destinatario</th>
+            <th scope="col">Reserva</th>
+            <th scope="col">Resultado</th>
+            <th scope="col">Procesada</th>
           </tr>
-        }
-      </tbody>
-    </table>
+        </thead>
+        <tbody>
+          @for (r of filtered(); track r.notificacionId) {
+            <tr>
+              <td>
+                <strong>{{ r.emailCliente || 'Correo no disponible' }}</strong
+                ><small>{{ r.asunto }}</small>
+              </td>
+              <td class="reference" [title]="r.reservaId ?? ''">{{ r.reservaId?.slice(0, 8) }}</td>
+              <td>
+                <span class="badge success">{{
+                  r.estado === 'CORREO_ENVIADO' ? 'Correo enviado' : r.estado
+                }}</span>
+              </td>
+              <td>{{ r.timestamp | date: 'dd/MM/yyyy HH:mm' }}</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
   }
 </section>

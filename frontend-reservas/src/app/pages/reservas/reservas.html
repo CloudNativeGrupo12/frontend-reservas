@@ -1,91 +1,258 @@
-<h1>Reservas</h1>
-
-<section class="panel">
-  <h2>Nueva reserva</h2>
-  <form [formGroup]="form" (ngSubmit)="crear()" class="grid">
-    <label>
-      Cliente ID
-      <input formControlName="clienteId" placeholder="cli-010" />
-    </label>
-    <label>
-      Email del cliente
-      <input formControlName="emailCliente" type="email" placeholder="cliente@example.com" />
-    </label>
-    <label>
-      Fecha
-      <input formControlName="fechaReserva" type="date" />
-    </label>
-    <label>
-      Hora inicio
-      <input formControlName="horaInicio" type="time" />
-    </label>
-    <label>
-      Hora fin
-      <input formControlName="horaFin" type="time" />
-    </label>
-    <label>
-      Personas (1-8)
-      <input formControlName="cantidadPersonas" type="number" min="1" max="8" />
-    </label>
-
-    @if (error()) {
-      <p class="alert error">{{ error() }}</p>
-    }
-    @if (message()) {
-      <p class="alert success">{{ message() }}</p>
-    }
-
-    <div class="actions">
-      <button class="btn btn-primary" type="submit" [disabled]="form.invalid">Crear reserva</button>
+<header class="page-head">
+  <div>
+    <h1>Reservas</h1>
+    <p>Organiza las visitas y encuentra cada reserva fácilmente.</p>
+  </div>
+  <div class="actions">
+    <button class="btn btn-primary" (click)="formVisible.set(true)" [disabled]="formVisible()">
+      <app-icon name="plus" />Nueva reserva
+    </button>
+  </div>
+</header>
+@if (message()) {
+  <p class="alert success" role="status">{{ message() }}</p>
+}
+@if (warning()) {
+  <p class="alert warning" role="status">{{ warning() }}</p>
+}
+@if (error()) {
+  <p class="alert error" role="alert">{{ error() }}</p>
+}
+@if (formVisible()) {
+  <section class="panel" aria-labelledby="nueva-reserva">
+    <div class="section-head">
+      <div>
+        <h2 id="nueva-reserva">Nueva reserva</h2>
+        <p>La mesa se asignará al confirmar la disponibilidad.</p>
+      </div>
+      <button
+        class="btn btn-outline btn-sm"
+        (click)="formVisible.set(false)"
+        [disabled]="saving()"
+        aria-label="Cerrar formulario"
+      >
+        <app-icon name="close" />
+      </button>
     </div>
-  </form>
-</section>
-
-<section class="panel">
-  <h2>Historial de reservas</h2>
-
+    <form [formGroup]="form" (ngSubmit)="crear()">
+      <div class="form-grid">
+        <label
+          >Referencia del cliente<input
+            formControlName="clienteId"
+            autocomplete="off"
+            placeholder="Ej. cliente-010"
+            [attr.aria-invalid]="invalid('clienteId')"
+          />
+          @if (invalid('clienteId')) {
+            <span class="field-error">Ingresa la referencia del cliente.</span>
+          }
+        </label>
+        <label
+          >Correo de confirmación<input
+            formControlName="emailCliente"
+            type="email"
+            autocomplete="email"
+            placeholder="nombre@correo.cl"
+            [attr.aria-invalid]="invalid('emailCliente')"
+          />
+          @if (invalid('emailCliente')) {
+            <span class="field-error">Ingresa un correo válido.</span>
+          }
+        </label>
+        <label
+          >Personas<input
+            formControlName="cantidadPersonas"
+            type="number"
+            min="1"
+            max="8"
+            step="1"
+            [attr.aria-invalid]="invalid('cantidadPersonas')"
+          /><span class="field-help">Entre 1 y 8 personas por reserva.</span>
+          @if (invalid('cantidadPersonas')) {
+            <span class="field-error">Ingresa un número entero entre 1 y 8.</span>
+          }
+        </label>
+        <label
+          >Fecha de visita<input
+            formControlName="fechaReserva"
+            type="date"
+            [min]="today"
+            aria-required="true"
+            aria-describedby="fecha-error"
+            [attr.aria-invalid]="
+              form.controls.fechaReserva.touched &&
+              (form.controls.fechaReserva.invalid || form.hasError('pastDate'))
+            "
+          />
+          @if (invalid('fechaReserva')) {
+            <span class="field-error" id="fecha-error">Selecciona la fecha de visita.</span>
+          }
+          @if (form.controls.fechaReserva.touched && form.hasError('pastDate')) {
+            <span class="field-error" id="fecha-error">Selecciona hoy o una fecha futura.</span>
+          }
+        </label>
+        <label
+          >Hora de llegada<input
+            formControlName="horaInicio"
+            type="time"
+            aria-required="true"
+            aria-describedby="inicio-error"
+            [attr.aria-invalid]="invalid('horaInicio')"
+          />
+          @if (invalid('horaInicio')) {
+            <span class="field-error" id="inicio-error">Selecciona la hora de llegada.</span>
+          }
+        </label>
+        <label
+          >Hora de salida<input
+            formControlName="horaFin"
+            type="time"
+            aria-required="true"
+            aria-describedby="fin-error"
+            [attr.aria-invalid]="
+              form.controls.horaFin.touched &&
+              (form.controls.horaFin.invalid || form.hasError('invalidInterval'))
+            "
+          />
+          @if (invalid('horaFin')) {
+            <span class="field-error" id="fin-error">Selecciona la hora de salida.</span>
+          }
+          @if (form.controls.horaFin.touched && form.hasError('invalidInterval')) {
+            <span class="field-error" id="fin-error"
+              >La salida debe ser posterior a la llegada.</span
+            >
+          }
+        </label>
+      </div>
+      <div class="form-footer">
+        <p>Recibirás la mesa asignada al confirmar la reserva.</p>
+        <div class="actions">
+          <button
+            class="btn btn-outline"
+            type="button"
+            (click)="formVisible.set(false)"
+            [disabled]="saving()"
+          >
+            Cancelar</button
+          ><button class="btn btn-primary" type="submit" [disabled]="saving()">
+            {{ saving() ? 'Confirmando…' : 'Confirmar reserva' }}
+          </button>
+        </div>
+      </div>
+    </form>
+  </section>
+}
+<section class="panel" aria-labelledby="reservas-lista">
+  <div class="section-head">
+    <div>
+      <h2 id="reservas-lista">Reservas registradas</h2>
+      <p>Consulta los detalles y el estado de las confirmaciones.</p>
+    </div>
+    <button class="btn btn-outline btn-sm" (click)="cargarReservas()" [disabled]="loading()">
+      <app-icon name="refresh" />Actualizar
+    </button>
+  </div>
+  <div class="toolbar">
+    <label class="search"
+      >Buscar<input
+        type="search"
+        placeholder="Cliente, correo o referencia"
+        [value]="search()"
+        (input)="search.set($any($event.target).value)" /></label
+    ><label
+      >Fecha<input
+        type="date"
+        [value]="date()"
+        (input)="date.set($any($event.target).value)" /></label
+    ><label
+      >Envío de confirmación<select
+        [value]="publication()"
+        (change)="publication.set($any($event.target).value)"
+      >
+        <option value="">Todos</option>
+        <option value="PUBLICADA">Evento enviado</option>
+        <option value="PENDIENTE">Pendiente</option>
+      </select></label
+    >
+  </div>
   @if (loading()) {
-    <app-loading />
-  } @else if (reservas().length === 0) {
-    <p class="empty">No hay reservas registradas.</p>
+    <app-loading message="Consultando las reservas…" />
+  } @else if (listError()) {
+    <div class="alert error" role="alert">
+      <p>{{ listError() }}</p>
+      <button class="btn btn-outline btn-sm" (click)="cargarReservas()">Volver a intentar</button>
+    </div>
+  } @else if (!reservas().length) {
+    <div class="empty-state">
+      <span class="empty-mark"><app-icon name="calendar" /></span>
+      <h3>Tu primera reserva empieza aquí</h3>
+      <p>Cuando confirmes una visita, aparecerán aquí sus detalles y la mesa asignada.</p>
+      <button class="btn btn-primary" (click)="formVisible.set(true)">Crear una reserva</button>
+    </div>
+  } @else if (!filtered().length) {
+    <div class="empty-state">
+      <h3>No encontramos coincidencias</h3>
+      <p>Prueba otra fecha o cambia los términos de búsqueda.</p>
+      <button class="btn btn-outline" (click)="resetFilters()">Limpiar filtros</button>
+    </div>
   } @else {
-    <table>
-      <thead>
-        <tr>
-          <th>Reserva</th>
-          <th>Cliente</th>
-          <th>Mesa</th>
-          <th>Fecha</th>
-          <th>Inicio</th>
-          <th>Fin</th>
-          <th>Personas</th>
-          <th>Estado</th>
-          <th>Publicación</th>
-          <th></th>
-        </tr>
-      </thead>
-      <tbody>
-        @for (reserva of reservas(); track reserva.reservaId) {
+    <p class="count">{{ filtered().length }} de {{ reservas().length }} reservas</p>
+    <div class="table-wrap">
+      <table>
+        <thead>
           <tr>
-            <td>{{ reserva.reservaId }}</td>
-            <td>
-              {{ reserva.clienteId }}<br /><small>{{ reserva.emailCliente }}</small>
-            </td>
-            <td>{{ reserva.mesaId }}</td>
-            <td>{{ reserva.fechaReserva }}</td>
-            <td>{{ reserva.horaInicio }}</td>
-            <td>{{ reserva.horaFin }}</td>
-            <td>{{ reserva.cantidadPersonas }}</td>
-            <td>{{ reserva.estado }}</td>
-            <td>{{ reserva.publicacion }}</td>
-            <td>
-              <button class="btn btn-sm" (click)="publicar(reserva.reservaId)">
-                Reintentar publicación
-              </button>
-            </td>
+            <th scope="col">Cliente</th>
+            <th scope="col">Visita</th>
+            <th scope="col">Mesa</th>
+            <th scope="col">Personas</th>
+            <th scope="col">Reserva</th>
+            <th scope="col">Confirmación</th>
+            <th scope="col">Acciones</th>
           </tr>
-        }
-      </tbody>
-    </table>
+        </thead>
+        <tbody>
+          @for (r of filtered(); track r.reservaId) {
+            <tr>
+              <td>
+                <strong>{{ r.clienteId }}</strong
+                ><small>{{ r.emailCliente }}</small>
+              </td>
+              <td>
+                {{ r.fechaReserva | date: 'dd/MM/yyyy'
+                }}<small>{{ r.horaInicio.slice(0, 5) }} a {{ r.horaFin.slice(0, 5) }}</small>
+              </td>
+              <td>Mesa {{ r.mesaId.replace('mesa-', '') }}</td>
+              <td>{{ r.cantidadPersonas }}</td>
+              <td>
+                <span class="badge success">{{
+                  r.estado === 'CONFIRMADA' ? 'Confirmada' : r.estado
+                }}</span
+                ><small class="reference" [title]="r.reservaId">{{
+                  r.reservaId.slice(0, 8)
+                }}</small>
+              </td>
+              <td>
+                <span class="badge" [class.pending]="r.publicacion === 'PENDIENTE'">{{
+                  r.publicacion === 'PUBLICADA' ? 'Evento enviado' : 'Pendiente'
+                }}</span>
+              </td>
+              <td>
+                @if (r.publicacion === 'PENDIENTE') {
+                  <button
+                    class="btn btn-outline btn-sm"
+                    (click)="publicar(r.reservaId)"
+                    [disabled]="!!publishing()"
+                  >
+                    {{ publishing() === r.reservaId ? 'Enviando…' : 'Reintentar envío' }}
+                  </button>
+                } @else {
+                  <span class="muted">Sin pendientes</span>
+                }
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
   }
 </section>

@@ -1,53 +1,205 @@
-.hero {
-  padding: 2rem 0 1rem;
-}
-
-.hero h1 {
-  margin: 0 0 0.5rem;
-}
-
-.hero p {
-  color: #6b7280;
-  max-width: 60ch;
-}
-
-.welcome {
-  font-weight: 500;
-  color: #374151;
-}
-
-.cards {
+.home-intro {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-  gap: 1rem;
-  margin-top: 1.5rem;
+  grid-template-columns: 1.5fr 1fr;
+  gap: 70px;
+  align-items: center;
+  padding: 35px 0 50px;
 }
-
-.card {
-  display: block;
-  padding: 1.25rem;
-  border: 1px solid #e5e7eb;
-  border-radius: 8px;
-  background: #ffffff;
-  color: #1f2937;
-  text-decoration: none;
-  transition:
-    border-color 0.15s,
-    box-shadow 0.15s;
+.home-intro h1 {
+  font-size: clamp(32px, 3.7vw, 46px);
+  line-height: 1.14;
+  letter-spacing: -0.03em;
+  margin-bottom: 22px;
 }
-
-.card:hover {
-  border-color: #3b82f6;
-  box-shadow: 0 2px 8px rgba(59, 130, 246, 0.15);
+.intro-copy {
+  color: var(--muted);
+  font-size: 17px;
+  max-width: 48ch;
+  margin-bottom: 28px;
 }
-
-.card h2 {
-  margin: 0 0 0.5rem;
-  font-size: 1.05rem;
+.greeting {
+  font-size: 15px;
+  color: var(--muted);
+  margin-bottom: 18px;
 }
-
-.card p {
+.login-hint {
+  font-size: 12px;
+  color: var(--muted);
+  margin-top: 18px;
+}
+.workflow {
+  padding: 28px;
+  background: white;
+  border-radius: 12px;
+  border: 1px solid var(--line);
+}
+.workflow h2 {
+  margin-bottom: 25px;
+}
+.workflow ol {
+  list-style: none;
   margin: 0;
-  font-size: 0.9rem;
-  color: #6b7280;
+  padding: 0;
+}
+.workflow li {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 25px;
+}
+.workflow li:last-child {
+  margin-bottom: 0;
+}
+.workflow-icon,
+.link-icon {
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  flex-shrink: 0;
+  border-radius: 8px;
+  background: var(--blue-soft);
+  color: var(--blue);
+}
+.workflow h3 {
+  font-size: 14px;
+  margin: 1px 0 4px;
+  letter-spacing: 0;
+}
+.workflow p {
+  font-size: 13px;
+  color: var(--muted);
+  margin: 0;
+}
+.workspace {
+  display: grid;
+  grid-template-columns: 1.05fr 1fr;
+  gap: 32px;
+  margin-bottom: 35px;
+}
+.workspace-main {
+  display: flex;
+  gap: 20px;
+  padding: 32px;
+  background: var(--blue-soft);
+  border-radius: 12px;
+  color: var(--ink);
+  text-decoration: none;
+  align-items: flex-start;
+}
+.workspace-main > app-icon {
+  color: var(--blue);
+  margin-top: 3px;
+}
+.workspace-main p {
+  color: var(--muted);
+  margin-bottom: 26px;
+}
+.workspace-main .text-link {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--blue);
+  font-size: 14px;
+}
+.workspace-main:hover {
+  background: #e3ebff;
+}
+.workspace-links a {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 22px 0;
+  text-decoration: none;
+  color: var(--ink);
+}
+.workspace-links a + a {
+  border-top: 1px solid var(--line);
+}
+.workspace-links a > app-icon {
+  margin-left: auto;
+  color: var(--muted);
+}
+.workspace-links h3 {
+  margin: 0 0 4px;
+}
+.workspace-links p {
+  margin: 0;
+  font-size: 14px;
+  color: var(--muted);
+}
+.workspace-links a:hover h3 {
+  color: var(--blue);
+}
+.system-link {
+  display: flex;
+  justify-content: space-between;
+  gap: 24px;
+  align-items: center;
+  padding: 25px 0;
+  border-top: 1px solid var(--line);
+}
+.system-link h3 {
+  font-size: 14px;
+  margin-bottom: 5px;
+}
+.system-link p {
+  color: var(--muted);
+  font-size: 13px;
+  margin: 0;
+}
+.system-link a {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 13px;
+  white-space: nowrap;
+}
+@media (max-width: 850px) {
+  .home-intro {
+    gap: 25px;
+    grid-template-columns: 1fr;
+    padding: 15px 0 32px;
+  }
+  .workflow ol {
+    display: flex;
+    gap: 20px;
+  }
+  .workflow li {
+    flex: 1;
+    flex-direction: column;
+    margin: 0;
+  }
+  .workspace {
+    gap: 24px;
+  }
+  .desktop-break {
+    display: none;
+  }
+}
+@media (max-width: 560px) {
+  .workflow {
+    padding: 22px;
+  }
+  .workflow ol {
+    display: block;
+  }
+  .workflow li {
+    flex-direction: row;
+    margin-bottom: 22px;
+  }
+  .workspace {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+  .workspace-main {
+    padding: 24px;
+  }
+  .system-link {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 14px;
+  }
+  .actions .btn {
+    width: 100%;
+  }
 }

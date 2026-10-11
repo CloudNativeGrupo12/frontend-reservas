@@ -1,37 +1,84 @@
-<section class="hero">
-  <h1>Sistema de Reservas</h1>
-  <p>
-    Panel del restaurante: gestión de reservas, disponibilidad de mesas, notificaciones, auditoría y
-    colas de RabbitMQ.
-  </p>
-
-  @if (loggedIn && accountName()) {
-    <p class="welcome">
-      Bienvenido, <strong>{{ accountName() }}</strong
-      >.
+<section class="home-intro">
+  <div>
+    @if (loggedIn && accountName()) {
+      <p class="greeting">Hola, {{ accountName() }}.</p>
+    }
+    <h1>
+      Un buen servicio comienza<br class="desktop-break" />
+      con una mesa preparada.
+    </h1>
+    <p class="intro-copy">
+      Organiza tus reservas, consulta las mesas y mantén cada confirmación bajo control.
     </p>
-  }
+    <div class="actions">
+      <a class="btn btn-primary" routerLink="/reservas"
+        ><app-icon name="plus" /> Gestionar reservas</a
+      ><a class="btn btn-outline" routerLink="/disponibilidad">Consultar mesas</a>
+    </div>
+    @if (!loggedIn) {
+      <p class="login-hint">
+        Inicia sesión con tu cuenta para acceder a la gestión del restaurante.
+      </p>
+    }
+  </div>
+  <aside class="workflow" aria-label="Cómo se confirma una reserva">
+    <h2>Todo en su lugar</h2>
+    <ol>
+      <li>
+        <span class="workflow-icon"><app-icon name="calendar" /></span>
+        <div>
+          <h3>Registra la reserva</h3>
+          <p>Fecha, horario y número de personas.</p>
+        </div>
+      </li>
+      <li>
+        <span class="workflow-icon"><app-icon name="table" /></span>
+        <div>
+          <h3>Asigna una mesa</h3>
+          <p>El sistema comprueba la disponibilidad.</p>
+        </div>
+      </li>
+      <li>
+        <span class="workflow-icon"><app-icon name="mail" /></span>
+        <div>
+          <h3>Envía la confirmación</h3>
+          <p>El cliente recibe los detalles por correo.</p>
+        </div>
+      </li>
+    </ol>
+  </aside>
 </section>
-
-<div class="cards">
-  <a class="card" routerLink="/reservas">
-    <h2>Reservas</h2>
-    <p>Crear reservas y ver el historial del microservicio ms-reservas (:8080).</p>
-  </a>
-  <a class="card" routerLink="/disponibilidad">
-    <h2>Disponibilidad</h2>
-    <p>Mesas del restaurante y ocupación actual (ms-disponibilidad, :8081).</p>
-  </a>
-  <a class="card" routerLink="/notificaciones">
-    <h2>Notificaciones</h2>
-    <p>Correos procesados por ms-notificaciones (:8082).</p>
-  </a>
-  <a class="card" routerLink="/auditoria">
-    <h2>Auditoría</h2>
-    <p>Registros de auditoría del sistema (ms-auditoria, :8083).</p>
-  </a>
-  <a class="card" routerLink="/admin">
-    <h2>Admin RabbitMQ</h2>
-    <p>Gestión de colas, exchanges y bindings (ms-admin-rabbitmq, :8084).</p>
-  </a>
+<section class="workspace" aria-label="Áreas de trabajo">
+  <a class="workspace-main" routerLink="/reservas"
+    ><app-icon name="calendar" />
+    <div>
+      <h2>Tu agenda de reservas</h2>
+      <p>Crea una reserva y consulta las confirmaciones registradas.</p>
+      <span class="text-link">Abrir reservas <app-icon name="arrow" /></span></div
+  ></a>
+  <div class="workspace-links">
+    <a routerLink="/notificaciones"
+      ><span class="link-icon"><app-icon name="mail" /></span>
+      <div>
+        <h3>Notificaciones</h3>
+        <p>Revisa las confirmaciones enviadas.</p>
+      </div>
+      <app-icon name="arrow"
+    /></a>
+    <a routerLink="/auditoria"
+      ><span class="link-icon"><app-icon name="activity" /></span>
+      <div>
+        <h3>Actividad del sistema</h3>
+        <p>Consulta el registro de cada operación.</p>
+      </div>
+      <app-icon name="arrow"
+    /></a>
+  </div>
+</section>
+<div class="system-link">
+  <div>
+    <h3>Administración de mensajería</h3>
+    <p>Herramientas para gestionar colas, exchanges y bindings.</p>
+  </div>
+  <a routerLink="/admin" class="text-link">Abrir sistema <app-icon name="arrow" /></a>
 </div>

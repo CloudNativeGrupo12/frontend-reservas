@@ -1,10 +1,11 @@
 import { Component, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
+import { Icon } from '../../shared/icon/icon';
 import { MsalService } from '@azure/msal-angular';
 
 @Component({
   selector: 'app-home',
-  imports: [RouterLink],
+  imports: [RouterLink, Icon],
   templateUrl: './home.html',
   styleUrl: './home.css',
 })

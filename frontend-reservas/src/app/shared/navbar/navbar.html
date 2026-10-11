@@ -1,17 +1,78 @@
 <header class="navbar">
-  <a class="brand" routerLink="/">Reservas</a>
-  <nav class="links">
-    <a routerLink="/reservas" routerLinkActive="active">Reservas</a>
-    <a routerLink="/disponibilidad" routerLinkActive="active">Disponibilidad</a>
-    <a routerLink="/notificaciones" routerLinkActive="active">Notificaciones</a>
-    <a routerLink="/auditoria" routerLinkActive="active">Auditoría</a>
-    <a routerLink="/admin" routerLinkActive="active">Admin RabbitMQ</a>
-  </nav>
-  <div class="auth">
-    @if (loggedIn()) {
-      <button class="btn btn-outline" (click)="logout()">Cerrar sesión</button>
-    } @else {
-      <button class="btn btn-primary" (click)="login()">Iniciar sesión</button>
-    }
+  <div class="nav-inner">
+    <a class="brand" routerLink="/" aria-label="Reservas, inicio"
+      ><span class="brand-mark"><app-icon name="table" /></span
+      ><span>Reservas<small>Tu restaurante, organizado</small></span></a
+    >
+    <button
+      class="mobile-toggle btn btn-outline"
+      (click)="menuOpen.set(!menuOpen())"
+      [attr.aria-expanded]="menuOpen()"
+      aria-controls="main-nav"
+      aria-label="Abrir o cerrar navegación"
+    >
+      <app-icon [name]="menuOpen() ? 'close' : 'menu'" />
+    </button>
+    <nav id="main-nav" class="links" [class.open]="menuOpen()" aria-label="Navegación principal">
+      <a
+        routerLink="/"
+        routerLinkActive="active"
+        [routerLinkActiveOptions]="{ exact: true }"
+        ariaCurrentWhenActive="page"
+        (click)="menuOpen.set(false)"
+        >Inicio</a
+      >
+      <a
+        routerLink="/reservas"
+        routerLinkActive="active"
+        ariaCurrentWhenActive="page"
+        (click)="menuOpen.set(false)"
+        >Reservas</a
+      >
+      <a
+        routerLink="/disponibilidad"
+        routerLinkActive="active"
+        ariaCurrentWhenActive="page"
+        (click)="menuOpen.set(false)"
+        >Mesas</a
+      >
+      <a
+        routerLink="/notificaciones"
+        routerLinkActive="active"
+        ariaCurrentWhenActive="page"
+        (click)="menuOpen.set(false)"
+        >Notificaciones</a
+      >
+      <a
+        routerLink="/auditoria"
+        routerLinkActive="active"
+        ariaCurrentWhenActive="page"
+        (click)="menuOpen.set(false)"
+        >Actividad</a
+      >
+      <a
+        routerLink="/admin"
+        routerLinkActive="active"
+        ariaCurrentWhenActive="page"
+        (click)="menuOpen.set(false)"
+        >Sistema</a
+      >
+    </nav>
+    <div class="auth">
+      @if (loggedIn()) {
+        <span class="account" [title]="name()">{{ name() }}</span
+        ><button class="btn btn-outline btn-sm" (click)="logout()">Cerrar sesión</button>
+      } @else {
+        <button class="btn btn-primary" (click)="login()">Iniciar sesión</button>
+      }
+    </div>
   </div>
 </header>
+@if (authError()) {
+  <div class="auth-notice" role="alert">
+    {{ authError()
+    }}<button class="btn btn-sm" (click)="authError.set('')" aria-label="Cerrar aviso">
+      <app-icon name="close" />
+    </button>
+  </div>
+}
