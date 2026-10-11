@@ -1,96 +1,114 @@
 import { Component, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { Observable, finalize } from 'rxjs';
 import { AdminRabbitmqService } from '../../services/admin-rabbitmq.service';
-
+import { AdminResponse, BindingRequest } from '../../models/admin.model';
+import { Icon } from '../../shared/icon/icon';
+import { errorMessage } from '../../shared/http-error';
+import { requiredText } from '../../shared/reservation-validation';
+interface DeleteRequest {
+  type: 'queue' | 'exchange' | 'binding';
+  name: string;
+  binding?: BindingRequest;
+}
 @Component({
   selector: 'app-admin-rabbitmq',
-  imports: [ReactiveFormsModule],
+  imports: [ReactiveFormsModule, Icon],
   templateUrl: './admin-rabbitmq.html',
   styleUrl: './admin-rabbitmq.css',
 })
 export class AdminRabbitmqComponent {
-  private readonly adminService = inject(AdminRabbitmqService);
+  private readonly service = inject(AdminRabbitmqService);
   private readonly fb = inject(FormBuilder);
-
+  protected readonly tab = signal<'queues' | 'exchanges' | 'bindings'>('queues');
   protected readonly error = signal('');
   protected readonly message = signal('');
-
+  protected readonly busy = signal(false);
+  protected readonly pendingDelete = signal<DeleteRequest | null>(null);
   protected readonly queueForm = this.fb.nonNullable.group({
-    name: ['', Validators.required],
+    name: ['', requiredText],
     durable: [true],
   });
-
   protected readonly exchangeForm = this.fb.nonNullable.group({
-    name: ['', Validators.required],
+    name: ['', requiredText],
     type: ['direct' as 'direct' | 'fanout' | 'topic', Validators.required],
     durable: [true],
   });
-
   protected readonly bindingForm = this.fb.nonNullable.group({
-    queue: ['', Validators.required],
-    exchange: ['', Validators.required],
-    routingKey: ['', Validators.required],
+    queue: ['', requiredText],
+    exchange: ['', requiredText],
+    routingKey: [''],
   });
-
-  private notify(message: string): void {
-    this.message.set(message);
+  private operate(request: Observable<AdminResponse>, success: string): void {
+    if (this.busy()) return;
+    this.busy.set(true);
     this.error.set('');
+    this.message.set('');
+    request.pipe(finalize(() => this.busy.set(false))).subscribe({
+      next: (r) => {
+        if (r.status !== 'OK') {
+          this.error.set(r.mensaje || 'No se pudo completar la operación.');
+          return;
+        }
+        this.message.set(success);
+        this.pendingDelete.set(null);
+      },
+      error: (e) => this.error.set(errorMessage(e)),
+    });
   }
-
   crearCola(): void {
-    if (this.queueForm.invalid) {
-      return;
-    }
-    this.adminService.crearCola(this.queueForm.getRawValue()).subscribe({
-      next: (cola) => this.notify(`Cola "${cola.name}" creada.`),
-      error: (err) => this.error.set(err.message),
-    });
+    this.queueForm.markAllAsTouched();
+    if (this.queueForm.invalid) return;
+    const data = this.queueForm.getRawValue();
+    data.name = data.name.trim();
+    this.operate(this.service.crearCola(data), `Cola "${data.name}" creada correctamente.`);
   }
-
-  eliminarCola(name: string): void {
-    this.adminService.eliminarCola(name).subscribe({
-      next: () => this.notify(`Cola "${name}" eliminada.`),
-      error: (err) => this.error.set(err.message),
-    });
-  }
-
   crearExchange(): void {
-    if (this.exchangeForm.invalid) {
-      return;
-    }
-    this.adminService.crearExchange(this.exchangeForm.getRawValue()).subscribe({
-      next: (exchange) => this.notify(`Exchange "${exchange.name}" creado.`),
-      error: (err) => this.error.set(err.message),
-    });
+    this.exchangeForm.markAllAsTouched();
+    if (this.exchangeForm.invalid) return;
+    const data = this.exchangeForm.getRawValue();
+    data.name = data.name.trim();
+    this.operate(this.service.crearExchange(data), `Exchange "${data.name}" creado correctamente.`);
   }
-
-  eliminarExchange(name: string): void {
-    this.adminService.eliminarExchange(name).subscribe({
-      next: () => this.notify(`Exchange "${name}" eliminado.`),
-      error: (err) => this.error.set(err.message),
-    });
+  private binding(): BindingRequest {
+    const b = this.bindingForm.getRawValue();
+    return { queue: b.queue.trim(), exchange: b.exchange.trim(), routingKey: b.routingKey.trim() };
   }
-
   crearBinding(): void {
-    if (this.bindingForm.invalid) {
-      return;
-    }
-    this.adminService.crearBinding(this.bindingForm.getRawValue()).subscribe({
-      next: (binding) =>
-        this.notify(
-          `Binding ${binding.queue} -> ${binding.exchange} con routing key "${binding.routingKey}" creado.`,
-        ),
-      error: (err) => this.error.set(err.message),
-    });
+    this.bindingForm.markAllAsTouched();
+    if (this.bindingForm.invalid) return;
+    const b = this.binding();
+    this.operate(
+      this.service.crearBinding(b),
+      `Binding creado entre "${b.exchange}" y "${b.queue}".`,
+    );
   }
-
+  eliminarCola(name: string): void {
+    if (name.trim() && !this.busy()) this.pendingDelete.set({ type: 'queue', name: name.trim() });
+  }
+  eliminarExchange(name: string): void {
+    if (name.trim() && !this.busy())
+      this.pendingDelete.set({ type: 'exchange', name: name.trim() });
+  }
   eliminarBinding(): void {
-    if (this.bindingForm.invalid) {
-      return;
-    }
-    this.adminService.eliminarBinding(this.bindingForm.getRawValue()).subscribe({
-      next: () => this.notify('Binding eliminado.'),
-      error: (err) => this.error.set(err.message),
-    });
+    if (this.bindingForm.invalid || this.busy()) return;
+    const b = this.binding();
+    this.pendingDelete.set({ type: 'binding', name: `${b.exchange} → ${b.queue}`, binding: b });
+  }
+  confirmarEliminacion(): void {
+    const r = this.pendingDelete();
+    if (!r || this.busy()) return;
+    if (r.type === 'queue')
+      this.operate(this.service.eliminarCola(r.name), `Cola "${r.name}" eliminada.`);
+    else if (r.type === 'exchange')
+      this.operate(this.service.eliminarExchange(r.name), `Exchange "${r.name}" eliminado.`);
+    else if (r.binding)
+      this.operate(this.service.eliminarBinding(r.binding), 'Binding eliminado correctamente.');
+  }
+  selectTab(tab: 'queues' | 'exchanges' | 'bindings'): void {
+    this.tab.set(tab);
+    this.pendingDelete.set(null);
+    this.error.set('');
+    this.message.set('');
   }
 }

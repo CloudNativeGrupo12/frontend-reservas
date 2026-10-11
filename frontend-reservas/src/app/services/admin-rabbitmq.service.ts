@@ -5,37 +5,29 @@ import { environment } from '../../environments/environment';
 import {
   BindingRequest,
   ExchangeRequest,
-  ExchangeResponse,
   QueueRequest,
-  QueueResponse,
+  AdminResponse,
 } from '../models/admin.model';
-
 @Injectable({ providedIn: 'root' })
 export class AdminRabbitmqService {
   private readonly http = inject(HttpClient);
-  private readonly baseUrl = `${environment.api.adminRabbitmq}/api/admin`;
-
-  crearCola(body: QueueRequest): Observable<QueueResponse> {
-    return this.http.post<QueueResponse>(`${this.baseUrl}/queues`, body);
+  private readonly url = `${environment.api.adminRabbitmq}/api/admin`;
+  crearCola(body: QueueRequest): Observable<AdminResponse> {
+    return this.http.post<AdminResponse>(`${this.url}/queues`, body);
   }
-
-  eliminarCola(name: string): Observable<void> {
-    return this.http.delete<void>(`${this.baseUrl}/queues/${encodeURIComponent(name)}`);
+  eliminarCola(name: string): Observable<AdminResponse> {
+    return this.http.delete<AdminResponse>(`${this.url}/queues/${encodeURIComponent(name)}`);
   }
-
-  crearExchange(body: ExchangeRequest): Observable<ExchangeResponse> {
-    return this.http.post<ExchangeResponse>(`${this.baseUrl}/exchanges`, body);
+  crearExchange(body: ExchangeRequest): Observable<AdminResponse> {
+    return this.http.post<AdminResponse>(`${this.url}/exchanges`, body);
   }
-
-  eliminarExchange(name: string): Observable<void> {
-    return this.http.delete<void>(`${this.baseUrl}/exchanges/${encodeURIComponent(name)}`);
+  eliminarExchange(name: string): Observable<AdminResponse> {
+    return this.http.delete<AdminResponse>(`${this.url}/exchanges/${encodeURIComponent(name)}`);
   }
-
-  crearBinding(body: BindingRequest): Observable<BindingRequest> {
-    return this.http.post<BindingRequest>(`${this.baseUrl}/bindings`, body);
+  crearBinding(body: BindingRequest): Observable<AdminResponse> {
+    return this.http.post<AdminResponse>(`${this.url}/bindings`, body);
   }
-
-  eliminarBinding(body: BindingRequest): Observable<void> {
-    return this.http.request<void>('delete', `${this.baseUrl}/bindings`, { body });
+  eliminarBinding(body: BindingRequest): Observable<AdminResponse> {
+    return this.http.request<AdminResponse>('delete', `${this.url}/bindings`, { body });
   }
 }

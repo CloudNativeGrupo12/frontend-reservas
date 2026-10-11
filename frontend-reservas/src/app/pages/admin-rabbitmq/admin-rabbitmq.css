@@ -1,27 +1,74 @@
-.half {
-  max-width: 420px;
+.resource-tabs {
+  display: flex;
+  gap: 26px;
+  border-bottom: 1px solid var(--line);
+  margin-bottom: 24px;
 }
-
+.resource-tabs button {
+  padding: 12px 3px;
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  color: var(--muted);
+  font-weight: 600;
+  cursor: pointer;
+}
+.resource-tabs button.active {
+  border-bottom-color: var(--blue);
+  color: var(--blue);
+}
+.resource-tabs button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+.admin-layout {
+  display: grid;
+  grid-template-columns: 1fr 1.2fr;
+  gap: 64px;
+  padding: 36px;
+}
+.admin-explanation > app-icon {
+  color: var(--blue);
+  margin-bottom: 20px;
+}
+.admin-explanation p {
+  color: var(--muted);
+  font-size: 14px;
+}
 .vertical {
   display: flex;
   flex-direction: column;
-  gap: 0.75rem;
+  gap: 22px;
 }
-
-label {
-  display: flex;
-  flex-direction: column;
-  gap: 0.35rem;
-  font-size: 0.85rem;
-  color: #374151;
+.vertical .actions {
+  margin-top: 8px;
 }
-
-label.checkbox {
-  flex-direction: row;
-  align-items: center;
+.delete-confirm {
+  padding: 24px;
+  background: #fff0f1;
+  border-radius: 12px;
+  margin-bottom: 24px;
+  color: #862131;
 }
-
-.actions {
-  display: flex;
-  gap: 0.5rem;
+.delete-confirm h2 {
+  font-size: 19px;
+}
+.delete-confirm strong {
+  overflow-wrap: anywhere;
+}
+@media (max-width: 700px) {
+  .admin-layout {
+    grid-template-columns: 1fr;
+    gap: 24px;
+    padding: 24px 18px;
+  }
+  .admin-explanation > app-icon {
+    display: none;
+  }
+  .admin-explanation p:last-child {
+    display: none;
+  }
+  .resource-tabs {
+    gap: 22px;
+  }
 }

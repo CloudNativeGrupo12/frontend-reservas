@@ -1,93 +1,197 @@
-<h1>Admin RabbitMQ</h1>
-
+<header class="page-head">
+  <div>
+    <h1>Administración del sistema</h1>
+    <p>Gestiona los recursos de mensajería del restaurante.</p>
+  </div>
+  <span class="badge">RabbitMQ</span>
+</header>
 @if (error()) {
-  <p class="alert error">{{ error() }}</p>
+  <p class="alert error" role="alert">{{ error() }}</p>
 }
 @if (message()) {
-  <p class="alert success">{{ message() }}</p>
+  <p class="alert success" role="status">{{ message() }}</p>
 }
-
-<section class="panel half">
-  <h2>Colas</h2>
-  <form [formGroup]="queueForm" (ngSubmit)="crearCola()" class="vertical">
-    <label>
-      Nombre
-      <input formControlName="name" placeholder="cola.reservas.nuevas" />
-    </label>
-    <label class="checkbox">
-      <input formControlName="durable" type="checkbox" />
-      Durable
-    </label>
-    <button class="btn btn-primary" type="submit" [disabled]="queueForm.invalid">Crear cola</button>
-  </form>
-  <button class="btn btn-sm btn-danger" (click)="eliminarCola(queueForm.controls.name.value ?? '')">
-    Eliminar cola
-  </button>
-</section>
-
-<section class="panel half">
-  <h2>Exchanges</h2>
-  <form [formGroup]="exchangeForm" (ngSubmit)="crearExchange()" class="vertical">
-    <label>
-      Nombre
-      <input formControlName="name" placeholder="exchange.reservas" />
-    </label>
-    <label>
-      Tipo
-      <select formControlName="type">
-        <option value="direct">direct</option>
-        <option value="fanout">fanout</option>
-        <option value="topic">topic</option>
-      </select>
-    </label>
-    <label class="checkbox">
-      <input formControlName="durable" type="checkbox" />
-      Durable
-    </label>
-    <button class="btn btn-primary" type="submit" [disabled]="exchangeForm.invalid">
-      Crear exchange
-    </button>
-  </form>
-  <button
-    class="btn btn-sm btn-danger"
-    (click)="eliminarExchange(exchangeForm.controls.name.value ?? '')"
-  >
-    Eliminar exchange
-  </button>
-</section>
-
-<section class="panel">
-  <h2>Bindings</h2>
-  <form [formGroup]="bindingForm" class="vertical grid">
-    <label>
-      Cola
-      <input formControlName="queue" placeholder="cola.reservas.nuevas" />
-    </label>
-    <label>
-      Exchange
-      <input formControlName="exchange" placeholder="exchange.reservas" />
-    </label>
-    <label>
-      Routing key
-      <input formControlName="routingKey" placeholder="reserva.creada" />
-    </label>
+@if (pendingDelete(); as request) {
+  <section class="delete-confirm" role="alert">
+    <h2>Confirmar eliminación</h2>
+    <p>
+      Se eliminará <strong>{{ request.name }}</strong
+      >. Eliminar un recurso puede interrumpir el procesamiento de mensajes asociados.
+    </p>
     <div class="actions">
-      <button
-        class="btn btn-primary"
-        type="button"
-        (click)="crearBinding()"
-        [disabled]="bindingForm.invalid"
-      >
-        Crear binding
-      </button>
-      <button
-        class="btn btn-danger"
-        type="button"
-        (click)="eliminarBinding()"
-        [disabled]="bindingForm.invalid"
-      >
-        Eliminar binding
+      <button class="btn btn-outline" (click)="pendingDelete.set(null)" [disabled]="busy()">
+        Cancelar</button
+      ><button class="btn btn-danger" (click)="confirmarEliminacion()" [disabled]="busy()">
+        {{ busy() ? 'Eliminando…' : 'Confirmar eliminación' }}
       </button>
     </div>
-  </form>
+  </section>
+}
+<nav class="resource-tabs" aria-label="Tipo de recurso">
+  <button
+    [class.active]="tab() === 'queues'"
+    [attr.aria-pressed]="tab() === 'queues'"
+    (click)="selectTab('queues')"
+    [disabled]="busy()"
+  >
+    Colas</button
+  ><button
+    [class.active]="tab() === 'exchanges'"
+    [attr.aria-pressed]="tab() === 'exchanges'"
+    (click)="selectTab('exchanges')"
+    [disabled]="busy()"
+  >
+    Exchanges</button
+  ><button
+    [class.active]="tab() === 'bindings'"
+    [attr.aria-pressed]="tab() === 'bindings'"
+    (click)="selectTab('bindings')"
+    [disabled]="busy()"
+  >
+    Bindings
+  </button>
+</nav>
+<section class="panel admin-layout">
+  @if (tab() === 'queues') {
+    <div class="admin-explanation">
+      <app-icon name="mail" />
+      <h2>Gestionar una cola</h2>
+      <p>Las colas conservan los mensajes hasta que un consumidor los procesa.</p>
+      <p class="muted">Ingresa el nombre del recurso que quieres crear o eliminar.</p>
+    </div>
+    <form [formGroup]="queueForm" (ngSubmit)="crearCola()" class="vertical">
+      <label
+        >Nombre de la cola<input
+          formControlName="name"
+          placeholder="Ej. reservas.notificaciones.queue"
+          autocomplete="off"
+          aria-required="true"
+          aria-describedby="queue-error"
+          [attr.aria-invalid]="queueForm.controls.name.touched && queueForm.controls.name.invalid"
+        />
+        @if (queueForm.controls.name.touched && queueForm.controls.name.invalid) {
+          <span class="field-error" id="queue-error">Ingresa un nombre para la cola.</span>
+        }</label
+      ><label class="checkbox"
+        ><input type="checkbox" formControlName="durable" />Conservar la cola después de reiniciar
+        RabbitMQ</label
+      >
+      <div class="actions">
+        <button class="btn btn-primary" type="submit" [disabled]="busy()">
+          {{ busy() ? 'Procesando…' : 'Crear cola' }}</button
+        ><button
+          class="btn btn-outline"
+          type="button"
+          (click)="eliminarCola(queueForm.controls.name.value)"
+          [disabled]="queueForm.invalid || busy()"
+        >
+          Eliminar cola
+        </button>
+      </div>
+    </form>
+  } @else if (tab() === 'exchanges') {
+    <div class="admin-explanation">
+      <app-icon name="settings" />
+      <h2>Gestionar un exchange</h2>
+      <p>El exchange dirige los mensajes a las colas según las reglas de enrutamiento.</p>
+      <p class="muted">Selecciona el tipo que corresponde al flujo de mensajes.</p>
+    </div>
+    <form [formGroup]="exchangeForm" (ngSubmit)="crearExchange()" class="vertical">
+      <label
+        >Nombre del exchange<input
+          formControlName="name"
+          placeholder="Ej. reservas.exchange"
+          autocomplete="off"
+          aria-required="true"
+          aria-describedby="exchange-error"
+          [attr.aria-invalid]="
+            exchangeForm.controls.name.touched && exchangeForm.controls.name.invalid
+          "
+        />
+        @if (exchangeForm.controls.name.touched && exchangeForm.controls.name.invalid) {
+          <span class="field-error" id="exchange-error">Ingresa un nombre para el exchange.</span>
+        }</label
+      ><label
+        >Tipo de enrutamiento<select formControlName="type">
+          <option value="direct">Direct: coincidencia exacta de clave</option>
+          <option value="topic">Topic: patrones de claves</option>
+          <option value="fanout">Fanout: todas las colas vinculadas</option>
+        </select></label
+      ><label class="checkbox"
+        ><input type="checkbox" formControlName="durable" />Conservar el exchange después de
+        reiniciar</label
+      >
+      <div class="actions">
+        <button class="btn btn-primary" type="submit" [disabled]="busy()">
+          {{ busy() ? 'Procesando…' : 'Crear exchange' }}</button
+        ><button
+          class="btn btn-outline"
+          type="button"
+          (click)="eliminarExchange(exchangeForm.controls.name.value)"
+          [disabled]="exchangeForm.invalid || busy()"
+        >
+          Eliminar exchange
+        </button>
+      </div>
+    </form>
+  } @else {
+    <div class="admin-explanation">
+      <app-icon name="activity" />
+      <h2>Gestionar un binding</h2>
+      <p>Un binding conecta un exchange con una cola y define cómo se enrutan sus mensajes.</p>
+      <p class="muted">La clave puede estar vacía en los exchanges de tipo fanout.</p>
+    </div>
+    <form [formGroup]="bindingForm" (ngSubmit)="crearBinding()" class="vertical">
+      <label
+        >Cola de destino<input
+          formControlName="queue"
+          placeholder="Ej. reservas.notificaciones.queue"
+          autocomplete="off"
+          aria-required="true"
+          aria-describedby="binding-queue-error"
+          [attr.aria-invalid]="
+            bindingForm.controls.queue.touched && bindingForm.controls.queue.invalid
+          "
+        />
+        @if (bindingForm.controls.queue.touched && bindingForm.controls.queue.invalid) {
+          <span class="field-error" id="binding-queue-error"
+            >Ingresa el nombre de la cola de destino.</span
+          >
+        }</label
+      ><label
+        >Exchange de origen<input
+          formControlName="exchange"
+          placeholder="Ej. reservas.exchange"
+          autocomplete="off"
+          aria-required="true"
+          aria-describedby="binding-exchange-error"
+          [attr.aria-invalid]="
+            bindingForm.controls.exchange.touched && bindingForm.controls.exchange.invalid
+          "
+        />
+        @if (bindingForm.controls.exchange.touched && bindingForm.controls.exchange.invalid) {
+          <span class="field-error" id="binding-exchange-error"
+            >Ingresa el nombre del exchange de origen.</span
+          >
+        }</label
+      ><label
+        >Clave de enrutamiento<input
+          formControlName="routingKey"
+          placeholder="Ej. reserva.confirmada"
+          autocomplete="off"
+      /></label>
+      <div class="actions">
+        <button class="btn btn-primary" type="submit" [disabled]="busy()">
+          {{ busy() ? 'Procesando…' : 'Crear binding' }}</button
+        ><button
+          class="btn btn-outline"
+          type="button"
+          (click)="eliminarBinding()"
+          [disabled]="bindingForm.invalid || busy()"
+        >
+          Eliminar binding
+        </button>
+      </div>
+    </form>
+  }
 </section>
