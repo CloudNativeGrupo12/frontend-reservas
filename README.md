@@ -16,9 +16,9 @@ Abre http://localhost:4200. Utiliza una versión de Node compatible con Angular 
 
 ## Configurar el inicio de sesión
 
-Completa `frontend-reservas/src/environments/environment.ts` con el identificador de la SPA, el tenant y el identificador de la API registrados en Azure. El scope solicitado es `api://<AZURE_API_CLIENT_ID>/access_as_user`. El backend debe validar ese mismo tenant y audiencia, y la SPA debe tener registrada su URI de redirección.
+La configuración de Azure del equipo ya está en `frontend-reservas/src/environments/environment.ts`. Para otro entorno, ajusta el identificador de la SPA, el tenant y el identificador de la API. El scope solicitado es `api://<AZURE_API_CLIENT_ID>/access_as_user`. El backend debe validar ese mismo tenant y audiencia, y la SPA debe tener registrada su URI de redirección.
 
-Para producción, completa `environment.prod.ts` con el dominio del frontend y la URL del API Manager. Los archivos conservan marcadores de posición; no incluyen credenciales reales. La configuración incompleta no se considera una sesión válida y las rutas protegidas siguen requiriendo autenticación.
+Para producción, completa `environment.prod.ts` con el dominio del frontend y la URL del API Manager. Los archivos contienen identificadores públicos de aplicación y tenant, sin secretos de cliente. La configuración incompleta no se considera una sesión válida y las rutas protegidas siguen requiriendo autenticación.
 
 ## Pantallas
 
@@ -52,3 +52,9 @@ frontend-reservas/src/app/
 ```
 
 Los estilos compartidos están en `frontend-reservas/src/styles.css`. El sistema visual y sus criterios están documentados en [DESIGN.md](DESIGN.md).
+
+## Integración EP3 y publicación
+
+La rama `main` reúne las mejoras de interfaz y la integración de `feature/ep3-rubrica`. Conserva la inicialización MSAL, la configuración Azure y las URLs del gateway HTTPS.
+
+El [último despliegue documentado en AWS](https://6yyp6d2s6j.execute-api.us-east-1.amazonaws.com) corresponde a la publicación previa de EP3. Fusionar el código en Git no vuelve a desplegar esa aplicación. Consulta la [configuración de Azure](frontend-reservas/docs/CONFIGURACION-AZURE.md) y la [guía de AWS del backend](https://github.com/CloudNativeGrupo12/actividad-evaluada-rabbitmq/blob/main/docs/DESPLIEGUE_AWS.md).

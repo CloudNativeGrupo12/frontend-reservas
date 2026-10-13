@@ -49,17 +49,17 @@
           </tr>
         </thead>
         <tbody>
-          @for (r of filtered(); track r.auditoriaId) {
+          @for (r of filtered(); track r.eventoId) {
             <tr>
               <td>
                 <strong>{{ r.tipo === 'ReservaConfirmada' ? 'Reserva confirmada' : r.tipo }}</strong
                 ><small>{{
-                  r.descripcion === 'RESERVA_CONFIRMADA_REGISTRADA'
+                  r.resultado === 'RESERVA_CONFIRMADA_REGISTRADA'
                     ? 'Operación registrada'
-                    : r.descripcion
+                    : r.resultado
                 }}</small>
               </td>
-              <td>{{ r.usuario || 'No disponible' }}</td>
+              <td>{{ r.clienteId || 'No disponible' }}</td>
               <td class="reference" [title]="r.reservaId ?? ''">{{ r.reservaId?.slice(0, 8) }}</td>
               <td>{{ r.timestamp | date: 'dd/MM/yyyy HH:mm' }}</td>
               <td class="reference" [title]="r.eventoId ?? ''">{{ r.eventoId?.slice(0, 8) }}</td>

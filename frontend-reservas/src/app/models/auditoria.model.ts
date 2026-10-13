@@ -6,5 +6,7 @@ export interface Auditoria {
   tipo?: string;
   descripcion?: string;
   usuario?: string;
+  clienteId?: string;
+  resultado?: string;
   timestamp?: string;
 }

@@ -1,5 +1,7 @@
 import { HttpErrorResponse } from '@angular/common/http';
 export function errorMessage(error: unknown): string {
+  if (error instanceof Error && error.message === 'El registro no contiene un evento válido.')
+    return 'Un registro contiene información inválida. Contacta al administrador para revisarlo.';
   if (!(error instanceof HttpErrorResponse))
     return 'No se pudo completar la acción. Inténtalo nuevamente.';
   switch (error.status) {

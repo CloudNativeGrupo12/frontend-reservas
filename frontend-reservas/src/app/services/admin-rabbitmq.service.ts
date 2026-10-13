@@ -6,28 +6,29 @@ import {
   BindingRequest,
   ExchangeRequest,
   QueueRequest,
-  AdminResponse,
+  QueueResponse,
+  ExchangeResponse,
 } from '../models/admin.model';
 @Injectable({ providedIn: 'root' })
 export class AdminRabbitmqService {
   private readonly http = inject(HttpClient);
   private readonly url = `${environment.api.adminRabbitmq}/api/admin`;
-  crearCola(body: QueueRequest): Observable<AdminResponse> {
-    return this.http.post<AdminResponse>(`${this.url}/queues`, body);
+  crearCola(body: QueueRequest): Observable<QueueResponse> {
+    return this.http.post<QueueResponse>(`${this.url}/queues`, body);
   }
-  eliminarCola(name: string): Observable<AdminResponse> {
-    return this.http.delete<AdminResponse>(`${this.url}/queues/${encodeURIComponent(name)}`);
+  eliminarCola(name: string): Observable<void> {
+    return this.http.delete<void>(`${this.url}/queues/${encodeURIComponent(name)}`);
   }
-  crearExchange(body: ExchangeRequest): Observable<AdminResponse> {
-    return this.http.post<AdminResponse>(`${this.url}/exchanges`, body);
+  crearExchange(body: ExchangeRequest): Observable<ExchangeResponse> {
+    return this.http.post<ExchangeResponse>(`${this.url}/exchanges`, body);
   }
-  eliminarExchange(name: string): Observable<AdminResponse> {
-    return this.http.delete<AdminResponse>(`${this.url}/exchanges/${encodeURIComponent(name)}`);
+  eliminarExchange(name: string): Observable<void> {
+    return this.http.delete<void>(`${this.url}/exchanges/${encodeURIComponent(name)}`);
   }
-  crearBinding(body: BindingRequest): Observable<AdminResponse> {
-    return this.http.post<AdminResponse>(`${this.url}/bindings`, body);
+  crearBinding(body: BindingRequest): Observable<BindingRequest> {
+    return this.http.post<BindingRequest>(`${this.url}/bindings`, body);
   }
-  eliminarBinding(body: BindingRequest): Observable<AdminResponse> {
-    return this.http.request<AdminResponse>('delete', `${this.url}/bindings`, { body });
+  eliminarBinding(body: BindingRequest): Observable<void> {
+    return this.http.request<void>('delete', `${this.url}/bindings`, { body });
   }
 }

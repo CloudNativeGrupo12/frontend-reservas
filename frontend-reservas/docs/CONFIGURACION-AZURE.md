@@ -1,7 +1,6 @@
-# Configuración pendiente — Azure y URLs
+# Configuración Azure y URLs
 
-Documento con todos los valores pendientes de rellenar antes de que la app funcione.
-Corresponden a los placeholders `<...>` que quedaron en `src/environments/`.
+Los registros API y SPA y sus identificadores quedaron configurados mediante Azure CLI el 8 de octubre de 2026. El backend incluye `scripts/configurar-azure.ps1` para reproducir la configuración, incluso al sustituir identificadores de otro tenant. Se verificó login real con Microsoft y acceso JWT a las cinco APIs en [la aplicación AWS](https://6yyp6d2s6j.execute-api.us-east-1.amazonaws.com). Desarrollo mantiene localhost; el build optimizado usa exclusivamente HTTPS y APIs AWS, con datos en RDS.
 
 ---
 
@@ -47,12 +46,14 @@ Debes crear **dos** registros de aplicación en el Azure Portal
 
 > La autoridad queda: `https://login.microsoftonline.com/<TENANT_ID>`.
 
-### Producción (src/environments/environment.prod.ts)
+### Build optimizado (src/environments/environment.prod.ts)
+
+La configuración actual usa los mismos identificadores Azure que desarrollo. `redirectUri` y `postLogoutRedirectUri` son `https://6yyp6d2s6j.execute-api.us-east-1.amazonaws.com`; este origen ya está registrado en la SPA y en CORS. `npm run build` genera la aplicación pública. Para desplegar en otro origen, actualizar todos estos valores y registrar el redirect correspondiente:
 
 | Placeholder | Valor esperado |
 | :--- | :--- |
-| `<DOMINIO_PRODUCCION>` | Dominio servido por S3/CloudFront, ej: `app.midominio.com` |
-| `<API_GATEWAY_URL>` | URL del API Gateway de AWS, ej: `https://xxx.execute-api.us-east-1.amazonaws.com/prod` |
+| `<DOMINIO_PRODUCCION>` | Origen HTTPS que sirve Angular; actualmente el endpoint público HTTP API Gateway |
+| `<API_GATEWAY_URL>` | `https://6yyp6d2s6j.execute-api.us-east-1.amazonaws.com` (stage `$default`, sin `/prod`) |
 | `<AZURE_SPA_CLIENT_ID>` | Application ID de **ReservasApp-SPA** |
 | `<TENANT_ID>` | Tenant ID del directorio |
 | `<AZURE_API_CLIENT_ID>` | Application ID de **ReservasApp-API** |
@@ -76,8 +77,17 @@ Debes crear **dos** registros de aplicación en el Azure Portal
 
 ### Producción — environment.prod.ts
 
-Todas las claves (`reservas`, `disponibilidad`, `notificaciones`, `auditoria`, `adminRabbitmq`)
-deben apuntar a `https://<API_GATEWAY_URL>`.
+El build optimizado usa el origen `https://6yyp6d2s6j.execute-api.us-east-1.amazonaws.com` con estos prefijos, tanto en `apiUrls` como en `protectedResourceMap`:
+
+| Clave | Prefijo |
+|---|---|
+| `reservas` | `/backend/reservas` |
+| `disponibilidad` | `/backend/disponibilidad` |
+| `notificaciones` | `/backend/notificaciones` |
+| `auditoria` | `/backend/auditoria` |
+| `adminRabbitmq` | `/backend/admin` |
+
+Nginx elimina el prefijo y transmite el bearer a cada API; Spring Boot valida el JWT. Frontend y APIs comparten el origen HTTPS.
 
 ---
 
@@ -89,21 +99,23 @@ deben apuntar a `https://<API_GATEWAY_URL>`.
    (Configúralo en `SecurityConfig.java` de cada servicio con `CorsConfigurationSource`.)
 2. **Validador de JWT en el backend.** Cada microservicio debe validar los tokens usando
    el **issuer** `https://login.microsoftonline.com/<TENANT_ID>/v2.0` y el **audience**
-   `api://<AZURE_API_CLIENT_ID>`.
+   `<AZURE_API_CLIENT_ID>` para los access tokens v2 de esta API. El scope mantiene el prefijo `api://`.
 3. **Redirect URI del SPA (Azure).** En ReservasApp-SPA → `Authentication`:
    - Platform: `Single-page application`
    - Redirect URIs: `http://localhost:4200` y `https://<DOMINIO_PRODUCCION>`.
-4. **Builder / constructor.** Se pueden dejar con los placeholders mientras no existan los
-   recursos; la app compila igualmente (`ng build`) porque son strings.
+4. **Builder / constructor.** Compilar no demuestra que una URL sea utilizable. La configuración entregada usa URLs reales de la demostración; después de cambiar un dominio, verificar login y llamadas autenticadas en ese entorno.
 
 ---
 
 ## 6. Checklist final
 
-- [ ] Crear registro **ReservasApp-SPA** y copiar su Application ID → `<AZURE_SPA_CLIENT_ID>`
-- [ ] Crear registro **ReservasApp-API**, definir scope `access_as_user` y copiar su Application ID → `<AZURE_API_CLIENT_ID>`
-- [ ] Copiar el Tenant ID → `<TENANT_ID>`
-- [ ] Rellenar `environment.ts` (separador desarrollo)
-- [ ] Rellenar `environment.prod.ts` (dominio + API Gateway)
-- [ ] Añadir redirect URIs en Azure (dev y prod)
-- [ ] Habilitar CORS y validación de JWT (issuer/audience) en los 5 microservicios
+- [x] Crear registro **ReservasApp-SPA** y configurar su Application ID.
+- [x] Crear registro **ReservasApp-API** y scope `access_as_user`.
+- [x] Configurar el Tenant ID y tokens v2.
+- [x] Configurar `environment.ts` y `environment.prod.ts` para la demostración.
+- [x] Registrar `http://localhost:4200` como redirect SPA.
+- [x] Registrar el origen HTTPS de AWS como redirect SPA, conservando localhost.
+- [x] Habilitar CORS y validación JWT (issuer/audience) en las cinco APIs.
+- [x] Verificar login real y consumo de las cinco APIs con JWT.
+
+El hosting público está activo en AWS. Antes de presentar, iniciar el laboratorio y comprobar EC2, RDS, salud de las APIs y login. Consultar `docs/DESPLIEGUE_AWS.md` del backend para reproducir y mantener la infraestructura.

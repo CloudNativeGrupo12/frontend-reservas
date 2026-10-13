@@ -12,7 +12,5 @@ export interface BindingRequest {
   exchange: string;
   routingKey: string;
 }
-export interface AdminResponse {
-  status: string;
-  mensaje: string;
-}
+export interface QueueResponse extends QueueRequest {}
+export interface ExchangeResponse extends ExchangeRequest {}

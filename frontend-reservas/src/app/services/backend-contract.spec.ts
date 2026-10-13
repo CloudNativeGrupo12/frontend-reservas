@@ -36,25 +36,24 @@ describe('Contratos reales del backend', () => {
       });
     http.expectOne(`${environment.api.notificaciones}/notificaciones`).flush([record]);
   });
-  it('conserva el registro aunque su payload no sea JSON válido', () => {
+  it('informa cuando el registro no contiene un evento válido', () => {
+    let error: Error | undefined;
     TestBed.inject(NotificacionesService)
       .listar()
-      .subscribe((rows) => {
-        expect(rows).toHaveLength(1);
-        expect(rows[0].reservaId).toBe('res-1');
-        expect(rows[0].emailCliente).toBeUndefined();
-      });
+      .subscribe({ error: (value) => (error = value) });
     http
       .expectOne(`${environment.api.notificaciones}/notificaciones`)
-      .flush([{ ...record, PAYLOAD: 'inválido' }]);
+      .flush([{ ...record, PAYLOAD: 'null' }]);
+    expect(error?.message).toBe('El registro no contiene un evento válido.');
   });
+
   it('relaciona la auditoría con cliente, reserva y evento', () => {
     TestBed.inject(AuditoriaService)
       .listar()
       .subscribe((rows) => {
         expect(rows[0].eventoId).toBe('evt-1');
         expect(rows[0].reservaId).toBe('res-1');
-        expect(rows[0].usuario).toBe('cli-1');
+        expect(rows[0].clienteId).toBe('cli-1');
       });
     http.expectOne(`${environment.api.auditoria}/auditoria`).flush([record]);
   });
@@ -66,17 +65,15 @@ describe('Contratos reales del backend', () => {
         expect(rows[0].fechaReserva).toBe('2026-10-12');
         expect(rows[0].horaInicio).toBe('18:00:00');
       });
-    http
-      .expectOne(`${environment.api.disponibilidad}/asignaciones`)
-      .flush([
-        {
-          ASIGNACION_ID: 'asg-1',
-          RESERVA_ID: 'res-1',
-          MESA_ID: 'mesa-01',
-          FECHA: '2026-10-12',
-          HORA_INICIO: '18:00:00',
-          HORA_FIN: '20:00:00',
-        },
-      ]);
+    http.expectOne(`${environment.api.disponibilidad}/asignaciones`).flush([
+      {
+        ASIGNACION_ID: 'asg-1',
+        RESERVA_ID: 'res-1',
+        MESA_ID: 'mesa-01',
+        FECHA: '2026-10-12',
+        HORA_INICIO: '18:00:00',
+        HORA_FIN: '20:00:00',
+      },
+    ]);
   });
 });

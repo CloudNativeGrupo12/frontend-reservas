@@ -20,19 +20,17 @@ export class DisponibilidadService {
     return this.http.get<Mesa[]>(`${this.url}/mesas`);
   }
   getAsignaciones(): Observable<Asignacion[]> {
-    return this.http
-      .get<AsignacionRecord[]>(`${this.url}/asignaciones`)
-      .pipe(
-        map((rows) =>
-          rows.map((r) => ({
-            asignacionId: r.ASIGNACION_ID,
-            reservaId: r.RESERVA_ID,
-            mesaId: r.MESA_ID,
-            fechaReserva: r.FECHA,
-            horaInicio: r.HORA_INICIO,
-            horaFin: r.HORA_FIN,
-          })),
-        ),
-      );
+    return this.http.get<AsignacionRecord[]>(`${this.url}/asignaciones`).pipe(
+      map((rows) =>
+        rows.map((r) => ({
+          asignacionId: r.ASIGNACION_ID,
+          reservaId: r.RESERVA_ID,
+          mesaId: r.MESA_ID,
+          fechaReserva: r.FECHA,
+          horaInicio: r.HORA_INICIO,
+          horaFin: r.HORA_FIN,
+        })),
+      ),
+    );
   }
 }

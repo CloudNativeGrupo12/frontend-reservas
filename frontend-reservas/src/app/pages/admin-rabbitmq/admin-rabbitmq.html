@@ -70,7 +70,10 @@
           [attr.aria-invalid]="queueForm.controls.name.touched && queueForm.controls.name.invalid"
         />
         @if (queueForm.controls.name.touched && queueForm.controls.name.invalid) {
-          <span class="field-error" id="queue-error">Ingresa un nombre para la cola.</span>
+          <span class="field-error" id="queue-error"
+            >Usa letras, números, puntos, guiones o guiones bajos. El nombre no puede empezar con
+            amq.</span
+          >
         }</label
       ><label class="checkbox"
         ><input type="checkbox" formControlName="durable" />Conservar la cola después de reiniciar
@@ -109,7 +112,10 @@
           "
         />
         @if (exchangeForm.controls.name.touched && exchangeForm.controls.name.invalid) {
-          <span class="field-error" id="exchange-error">Ingresa un nombre para el exchange.</span>
+          <span class="field-error" id="exchange-error"
+            >Usa letras, números, puntos, guiones o guiones bajos. El nombre no puede empezar con
+            amq.</span
+          >
         }</label
       ><label
         >Tipo de enrutamiento<select formControlName="type">
@@ -155,7 +161,7 @@
         />
         @if (bindingForm.controls.queue.touched && bindingForm.controls.queue.invalid) {
           <span class="field-error" id="binding-queue-error"
-            >Ingresa el nombre de la cola de destino.</span
+            >Ingresa un nombre de cola válido, sin espacios ni prefijo amq.</span
           >
         }</label
       ><label
@@ -171,7 +177,7 @@
         />
         @if (bindingForm.controls.exchange.touched && bindingForm.controls.exchange.invalid) {
           <span class="field-error" id="binding-exchange-error"
-            >Ingresa el nombre del exchange de origen.</span
+            >Ingresa un nombre de exchange válido, sin espacios ni prefijo amq.</span
           >
         }</label
       ><label
